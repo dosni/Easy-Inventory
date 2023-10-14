@@ -1,0 +1,123 @@
+﻿@page "/categoryUpdate/{Id:int}/{category}"
+
+@using ServiceLayer.Model;
+@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductCategoryServices.Concrete;
+
+@inject CategoryServices _CategoryServices
+@inject IDialogService _dialogService
+
+
+<PageTitle>CategoryUpdate</PageTitle>
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+<div style="padding: 1.5rem;">
+    <FluentLabel Typo="Typography.Header"> Update Category </FluentLabel>
+    <br />
+
+    <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentGrid Spacing="0">
+                <FluentGridItem xs="6">
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.CategoryId" Readonly=true Placeholder="CategoryId" >Cagegory ID</FluentNumberField>
+                        </FluentGridItem>
+                     
+                    </FluentGrid>
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.Category" Placeholder="Category" >Category</FluentTextField>
+                        </FluentGridItem>
+                    </FluentGrid>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentStack>
+        <br />
+        <FluentGrid Spacing="3" Justify="@Justification">
+            <FluentGridItem xs="12" sm="6">
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+            </FluentGridItem>
+
+        </FluentGrid>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    [Parameter]
+    public string category { get; set; }
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+    private bool IsLoading { get; set; } = false;
+    public CategoryDto model { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        base.OnInitialized();
+
+        init();
+
+    }
+
+    private async void init()
+    {
+        model = new CategoryDto();
+        model.CategoryId = Id;
+        model.Category = category;
+    }
+
+    private async void OnValidSubmit()
+    {
+        if (model.Category == string.Empty)
+        {
+            return;
+        }
+        try
+        {
+            IsLoading = true;
+            await Task.Delay(200);
+
+
+            CategoryDto a = new CategoryDto()
+                {
+                    CategoryId = model.CategoryId,
+                    Category = model.Category
+                    
+                };
+
+            ServiceResponseDTO<bool> result = new();
+
+            result = await _CategoryServices.UpdateAsync(a);
+
+            IsLoading = false;
+            // berikan pesan
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Update");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Update");
+            }
+
+            result = new();        
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+    }
+
+}

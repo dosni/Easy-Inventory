@@ -1,0 +1,109 @@
+﻿@page "/storeCreate"
+@using ServiceLayer.Model;
+@using ServiceLayer.StoreServices;
+@using ServiceLayer.StoreServices.Concrete;
+
+<PageTitle>Store Create</PageTitle>
+
+@inject StoreServices _storeServices
+@inject IDialogService _dialogService
+
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+<div style="padding: 1.5rem;">
+    <FluentLabel Typo="Typography.Header"> Buat Record Baru </FluentLabel>
+    <br />
+
+    <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentGrid Spacing="0">
+                <FluentGridItem xs="12">
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.StoreName" Placeholder="Nama Lokasi" />
+                        </FluentGridItem>
+                    </FluentGrid>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentStack>
+        <br />
+        <FluentGrid Spacing="3" Justify="@Justification">
+            <FluentGridItem xs="12" sm="6">
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+            </FluentGridItem>
+
+        </FluentGrid>
+    </EditForm>
+</div>
+
+@code {
+    private bool IsLoading { get; set; } = false;
+    public StoreDto model { get; set; }
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        init();
+    }
+
+    private async void init()
+    {
+        model = new StoreDto();
+        model.StoreName = string.Empty;
+
+    }
+    private async void OnValidSubmit()
+    {
+        if (model.StoreName == string.Empty)
+        {
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+            await Task.Delay(200);
+            StoreDto a = new StoreDto()
+                {
+                    StoreName = model.StoreName
+                };
+
+            ServiceResponseDTO<bool> result = new();
+            result = await _storeServices.CreateAsync(a);
+
+            IsLoading = false;
+            // berikan pesan
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Save");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Save");
+            }
+
+            result = new();
+            init();
+            StateHasChanged();
+
+
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+
+    }
+}

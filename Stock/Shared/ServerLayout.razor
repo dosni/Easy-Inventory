@@ -1,0 +1,46 @@
+﻿@using Microsoft.Fast.Components.FluentUI.DesignTokens;
+@inherits LayoutComponentBase
+
+<div id="container" class="page">
+    <FluentMainLayout NavMenuTitle="Navigation menu">
+
+        <Header>
+            <div style="display:flex">
+                &nbsp;&nbsp; <img id="img" src="logo/logomsj.png" alt=".." style="width:40px;height:40px;" />
+                &nbsp;&nbsp;
+            </div>
+            <h3> klikmsj</h3>
+            <FluentSpacer />
+          
+           @*  <AuthorizeView>
+                <Authorized>
+                    <a href="/" target="_blank">Logout</a>
+
+                </Authorized>
+                <NotAuthorized>
+                    <a href="https://docs.microsoft.com/aspnet/" target="_blank">Login</a>
+                </NotAuthorized>
+
+            </AuthorizeView>  *@
+        </Header>
+ 
+  
+        <SubHeader>
+            <p style="padding: 1.5rem;">Membuat hari semakin mudah</p>
+        </SubHeader>
+        <Body>
+            <div class="article">
+                @Body
+            </div>
+
+        </Body>
+          <NavMenuContent>
+           <ServerNavMenu/>
+          </NavMenuContent>
+       
+    </FluentMainLayout>
+
+
+</div>
+<FluentDialogProvider />
+

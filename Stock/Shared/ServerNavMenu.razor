@@ -1,0 +1,20 @@
+﻿<FluentNavMenuLink Icon="@(new Icons.Regular.Size20.Home())" Href="/">
+    <h6>Home</h6>
+</FluentNavMenuLink>
+
+<FluentNavMenuGroup InitiallyExpanded>
+    <h6>Category</h6>
+ @*  <FluentNavMenuLink Icon="@(new Icons.Regular.Size24.Calculator())" Text="Create Category" Href="categoryCreate" />  *@
+    <FluentNavMenuLink Href="./categoryCreate" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Create Category" />
+    <FluentNavMenuLink Href="./categoryList" Icon="@(new Icons.Regular.Size20.AppsList())" Text="List Category" />
+    <FluentNavMenuLink Href="./Category" Icon="@(new Icons.Regular.Size20.GroupList())" Text="Category" />
+ </FluentNavMenuGroup>
+<FluentNavMenuGroup InitiallyExpanded>
+    <h6>Product</h6>
+    <FluentNavMenuLink Href="./productCreate" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Create Product" />
+</FluentNavMenuGroup>
+<FluentNavMenuGroup InitiallyExpanded>
+
+    <h6>Lokasi</h6>
+    <FluentNavMenuLink Href="./storeCreate" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Create Lokasi" />
+</FluentNavMenuGroup>

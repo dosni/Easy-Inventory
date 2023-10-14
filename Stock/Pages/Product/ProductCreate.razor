@@ -1,0 +1,170 @@
+﻿@page "/productCreate"
+@using ServiceLayer.Model;
+@using ServiceLayer.ProductCategoryServices.Concrete;
+@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductService;
+@using ServiceLayer.ProductService.Concrete;
+
+
+<PageTitle>CategoryCreate</PageTitle>
+@inject ProductServices _productServices
+@inject CategoryServices _categoryServices
+
+
+@inject IDialogService _dialogService
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+@if (cats != null)
+{
+    <div style="padding: 1.5rem;">
+        <FluentLabel Typo="Typography.Header"> Buat Record Baru </FluentLabel>
+        <br />
+      
+        <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <FluentValidationSummary />
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentGrid Spacing="0">
+                    <FluentGridItem xs="6">
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.ProductName" Readonly=false Placeholder="Product Name"></FluentTextField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.SKU" Placeholder="SKU"></FluentTextField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=model.Price Placeholder="Price"></FluentNumberField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.Category" TOption="string">
+
+                                    <FluentOption Selected=true Value="(Select Category)">(Select Category)</FluentOption>
+
+                                    @foreach (var dta in cats)
+                                    {
+                                        <FluentOption Value=@dta.Category.ToString()>@dta.Category.ToString()</FluentOption>
+                                    }
+                                </FluentCombobox>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextArea @bind-Value="model.ProductDescription" Rows="6" Cols="40">Keterangan</FluentTextArea>
+
+                               </FluentGridItem>
+                        </FluentGrid>
+                       
+                       
+                    </FluentGridItem>
+
+
+
+                
+
+                </FluentGrid>
+            </FluentStack>
+            <br />
+            <FluentGrid Spacing="3" Justify="@Justification">
+                <FluentGridItem xs="12" sm="6">
+                    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+                </FluentGridItem>
+
+            </FluentGrid>
+        </EditForm>
+    </div>
+}
+
+@code {
+    private bool IsLoading { get; set; } = false;
+    public ProductDto model { get; set; }
+
+
+    // Option<string> selectedStringOption = default!;
+    IQueryable<CategoryDto>? cats;
+    // List<Option<string>> stringOptions;
+    string? comboboxValue;
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+    protected override async Task OnInitializedAsync()
+    {
+
+        base.OnInitialized();
+        IsLoading = true;
+        await Task.Delay(200);
+
+        cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
+
+
+        IsLoading = false;
+        init();
+
+    }
+
+    private async void init()
+    {
+        model = new ProductDto();
+
+       
+    }
+   
+    private async void OnValidSubmit()
+    {
+        if (model.Category == "(Select Category)")
+        {
+            _dialogService.ShowInfo("Pilih Category", "Save");
+            return;
+        }
+        try
+        {
+            IsLoading = true;
+            await Task.Delay(200);
+
+            ProductDto a = new ProductDto()
+                {
+                    ProductName = model.ProductName,
+                    ProductDescription = model.ProductDescription,
+                    SKU = model.SKU,
+                    CategoryId = await _categoryServices.GetCategoryId(model.Category),
+                    Price = model.Price,
+                    Category = model.Category
+
+                };
+            ServiceResponseDTO<bool> result = new();
+            result = await _productServices.CreateAsync(a);
+            IsLoading = false;
+            // berikan pesan
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Save");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Save");
+            }
+
+            result = new();
+            init();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+    }
+
+}

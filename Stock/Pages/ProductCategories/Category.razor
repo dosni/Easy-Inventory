@@ -1,0 +1,94 @@
+﻿@page "/Category"
+@using ServiceLayer.Model;
+@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductCategoryServices.Concrete;
+
+<PageTitle>Category</PageTitle>
+
+@inject CategoryServices _CategoryServices
+@inject IDialogService _dialogService
+<FluentHeader Style="background-color:none">
+    <h3>Categories</h3>
+    <FluentSpacer />
+    <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">Baru</FluentButton>
+</FluentHeader>
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column">
+        <FluentProgressRing></FluentProgressRing>
+    </div>
+}
+@if (cats != null)
+{
+    <FluentDataGrid Items="@cats" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr"
+                    style="height: 250px;overflow:auto;">
+
+        <PropertyColumn Property="@(c => c.CategoryId)" Title="Category Id" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.Category)" Title="Category" Align="Align.Start" />
+
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.CategoryId,context.Category))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.CategoryId,context.Category))" />
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+@code {
+    private bool IsLoading { get; set; } = false;
+    IQueryable<CategoryDto>? cats;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        base.OnInitialized();
+        await Loading();
+
+    }
+    private async Task Loading()
+    {
+        IsLoading = true;
+        await Task.Delay(200);
+        cats = (await _CategoryServices.GetEFCategoryListAsycn()).AsQueryable();
+        IsLoading = false;
+
+    }
+
+    private async void Edit(int Id, string cat)
+    {
+        _navman.NavigateTo($"categoryUpdate/{Id}/{cat}");
+
+    }
+    private async void Delete(int Id, string cat)
+    {
+        try
+        {
+            IsLoading = true;
+            await Task.Delay(200);
+            ServiceResponseDTO<bool> result = new();
+            result = await _CategoryServices.DeleteCategoryAsync(Id);
+            IsLoading = false;
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Delete");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Delete");
+            }
+            result = new();
+            await Loading();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+
+    }
+    private void GetLink()
+    {
+        _navman.NavigateTo("/categoryCreate");
+    }
+}
