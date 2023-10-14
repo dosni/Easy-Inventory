@@ -21,6 +21,7 @@ builder.Services.AddDbContext<StockContext>(options =>
                 errorNumbersToAdd: null);
         }));
 
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
