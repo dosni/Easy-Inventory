@@ -2,6 +2,7 @@
 using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
 using ServiceLayer.Model;
+using ServiceLayer.ProductCategoryServices;
 
 namespace ServiceLayer.ProductService.Concrete
 {
@@ -119,6 +120,32 @@ namespace ServiceLayer.ProductService.Concrete
                 return result;
             }
 
+        }
+
+        public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
+        {
+            try
+            {
+                var query = (from cat in _context.Products
+                             select new ProductDto
+                             {
+
+                                 ProductId = cat.ProductId,
+                                 CategoryId = cat.CategoryId,
+                                 Category = cat.ProductCategory.Category,
+                                 ProductName = cat.ProductName,
+                                 ProductDescription = cat.ProductDescription,
+                                 SKU = cat.ProductSku.SKU,
+                                 Price = cat.ProductSku.Price
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }
