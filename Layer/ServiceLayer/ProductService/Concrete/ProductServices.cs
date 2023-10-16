@@ -1,19 +1,24 @@
-﻿using DataLayer.Context;
+﻿using Dapper;
+using DataLayer.Context;
 using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using ServiceLayer.Model;
-using ServiceLayer.ProductCategoryServices;
+using System.Data;
 
 namespace ServiceLayer.ProductService.Concrete
 {
     public class ProductServices
     {
         private readonly StockContext _context;
+        private readonly StockContext _productContext;
+
         private readonly ProductSKUServices _productSkuServices;
 
-        public ProductServices(StockContext context, ProductSKUServices productskuservices)
+        public ProductServices(StockContext context, StockContext productContext, ProductSKUServices productskuservices)
         {
             _context = context;
+            _productContext = productContext;
             _productSkuServices = productskuservices;
         }
 
@@ -49,6 +54,49 @@ namespace ServiceLayer.ProductService.Concrete
 
         }
 
+        public async Task<ProductDto> GetProductAsync(int productId)
+        {
+            string sql = @"SELECT  products.ProductId, products.ProductName,products.ProductDescription, productskus.SKU
+                           FROM  products Inner join  productskus ON products.ProductId = productskus.ProductId where products.ProductId = @productId ;";
+
+            using (IDbConnection connection = new MySqlConnection(_context.Database.GetConnectionString()))
+            {
+                try
+                {
+                    var data = await connection.QuerySingleAsync<ProductDto>(sql, new { productId});
+                    return data;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+        }
+        public   ProductDto? GetProduct(int productId)
+        {
+            try
+            {
+               // IEnumerable<ProductDto>? products;
+                var query = (from cat in _productContext.Products
+                                 where cat.ProductId == productId
+                             select new ProductDto
+                             {
+                                 ProductId = cat.ProductId,
+                                 CategoryId = cat.CategoryId,
+                                 Category = cat.ProductCategory.Category,
+                                 ProductName = cat.ProductName,
+                                 ProductDescription = cat.ProductDescription,
+                                 SKU = cat.ProductSku.SKU,
+                                 Price = cat.ProductSku.Price
+                             });
+                var data =  query.SingleOrDefault(); // Use SingleOrDefault() here
+                return data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
 
 
         public async Task<ServiceResponseDTO<bool>> CreateAsync(ProductDto objDTO)
@@ -74,8 +122,8 @@ namespace ServiceLayer.ProductService.Concrete
                     SKU = objDTO.SKU,
                     Price = objDTO.Price
                 };
-                var flg = await _productSkuServices.CreateAsync(ItemSkuToAdd);
 
+                var flg = await _productSkuServices.CreateAsync(ItemSkuToAdd);
 
                 // kalau Product SKU bisa disimpan maka simpan product
                 // 
@@ -147,5 +195,61 @@ namespace ServiceLayer.ProductService.Concrete
                 return null;
             }
         }
+
+
+
+        public async Task<ServiceResponseDTO<bool>> DeleteProductAsync(int ProductId, string productSku)
+        {
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                result = await _productSkuServices.DeleteProductSKUAsync(ProductId, productSku);
+                if (result.Success == true)
+                {
+                    var productToDelete = await _context.Products.FindAsync(ProductId);
+                    if (productToDelete != null)
+                    {
+                        // Step 2: Remove the entity from the context
+                        _context.Products.Remove(productToDelete);
+
+                        // Step 3: Save the changes to the database
+
+                        var affectedRows = await _context.SaveChangesAsync();
+                        if (affectedRows > 0)
+                        {
+                            result.Success = true;
+                            result.Message = "Data dihapus";
+                            return result;
+                        }
+                        else
+                        {
+                            result.Success = false;
+                            result.Message = "Data tidak dihapus";
+                            return result;
+                        }
+
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Data tidak bisa dihapus";
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Success = true;
+                    result.Message = "Data dihapus";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+
     }
 }

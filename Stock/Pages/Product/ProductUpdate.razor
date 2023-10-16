@@ -1,6 +1,16 @@
-﻿@page "/productUpdate"
+﻿@page "/productUpdate/{Id:int}"
+
+@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductCategoryServices.Concrete;
+@using ServiceLayer.ProductService;
+@using ServiceLayer.ProductService.Concrete;
 
 <PageTitle>ProductUpdate</PageTitle>
+
+@inject ProductServices _productServices
+@inject CategoryServices _categoryServices
+
+@inject IDialogService _dialogService
 
 @if (IsLoading == true)
 {
@@ -8,8 +18,96 @@
         <FluentProgress></FluentProgress>
     </div>
 }
+@if (cats != null)
+{
+    <div style="padding: 1.5rem;">
+        <FluentLabel Typo="Typography.Header"> Update Product </FluentLabel>
+        <br />
+        <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <FluentValidationSummary />
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentGrid Spacing="0">
+                    <FluentGridItem xs="6">
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.ProductName" Readonly=false Placeholder="Product Name"></FluentTextField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.SKU" Placeholder="SKU"></FluentTextField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=model.Price Placeholder="Price"></FluentNumberField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.Category" TOption="string">
+
+                                    <FluentOption Value="(Select Category)">(Select Category)</FluentOption> 
+
+                                    @foreach (var dta in cats)
+                                    {
+                                        <FluentOption Value=@dta.Category.ToString()>@dta.Category.ToString()</FluentOption>
+                                    }
+                                </FluentCombobox>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextArea @bind-Value="model.ProductDescription" Rows="6" Cols="40">Keterangan</FluentTextArea>
+
+                            </FluentGridItem>
+                        </FluentGrid>
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentStack>
+        </EditForm>
+
+    </div>
+
+}
 
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
     private bool IsLoading { get; set; } = false;
+    IQueryable<CategoryDto>? cats;
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+    public ProductDto? model { get; set; }
+    IQueryable<ProductDto>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            base.OnInitialized();
+        
+            IsLoading = true;
+          
+            model =  _productServices.GetProduct(Id);
+            cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+        }
+
+
+
+    }
+   
+
+
+    private async void OnValidSubmit()
+    {
+
+    }
 }

@@ -1,10 +1,12 @@
 ﻿@page "/productList"
+@using ServiceLayer.Model;
 @using ServiceLayer.ProductService;
 @using ServiceLayer.ProductService.Concrete;
 
 <PageTitle>ProductList</PageTitle>
 
 @inject ProductServices _productServices
+@inject IDialogService _dialogService
 
 
 @if (IsLoading == true)
@@ -22,12 +24,12 @@
         <PropertyColumn Property="@(c => c.Category)" Title="Category" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.ProductDescription)" Title="Keterangan" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" />
-      @*   <TemplateColumn Title="Edit">
-            <FluentButton Appearance="Appearance.Accent" @onclick="@(() => Edit(context.CategoryId,context.Category))">Edit</FluentButton>
+        <TemplateColumn Title="Edit">
+            <FluentButton Appearance="Appearance.Accent" @onclick="@(() => Edit(context.ProductId))">Edit</FluentButton>
         </TemplateColumn>
         <TemplateColumn Title="Delete">
-            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.Delete())" @onclick="@(() => Delete(context.CategoryId,context.Category))">Delete</FluentButton>
-        </TemplateColumn> *@
+            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.Delete())" @onclick="@(() => Delete(context.ProductId,context.SKU))">Delete</FluentButton>
+        </TemplateColumn> 
     </FluentDataGrid>
 }
 
@@ -39,12 +41,50 @@
     protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
+        await Loading();
+    }
+    private async Task Loading()
+    {
         IsLoading = true;
         await Task.Delay(200);
-
         products = (await _productServices.GetProductListAsycn()).AsQueryable();
-
-
         IsLoading = false;
+    }
+
+    private async void Edit(int Id)
+    {
+        _navman.NavigateTo($"productUpdate/{Id}");
+
+    }
+    private async void Delete(int Id, string sku)
+    {
+        try
+        {
+            IsLoading = true;
+            await Task.Delay(200);
+            ServiceResponseDTO<bool> result = new();
+            result = await _productServices.DeleteProductAsync(Id,sku);
+            
+            IsLoading = false;
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Delete");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Delete");
+            }
+            result = new();
+            await Loading();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+
     }
 }
