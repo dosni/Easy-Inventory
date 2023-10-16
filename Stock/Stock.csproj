@@ -11,9 +11,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<IsPackable>true</IsPackable>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Content Remove="Pages\Product\ProductList.razor" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Fast.Components.FluentUI" Version="3.1.1" />
@@ -37,17 +34,5 @@
 	  <ProjectReference Include="..\Layer\Common\Common.csproj" />
 	  <ProjectReference Include="..\Layer\DataLayer\DataLayer.csproj" />
 	  <ProjectReference Include="..\Layer\ServiceLayer\ServiceLayer.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <UpToDateCheckInput Remove="Pages\Product\ProductList.razor" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <_ContentIncludedByDefault Remove="Pages\Product\ProductList.razor" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Pages\Product\ProductList.razor" />
 	</ItemGroup>
 </Project>

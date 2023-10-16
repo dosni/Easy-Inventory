@@ -1,0 +1,15 @@
+﻿@page "/productUpdate"
+
+<PageTitle>ProductUpdate</PageTitle>
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+
+
+@code {
+    private bool IsLoading { get; set; } = false;
+}
