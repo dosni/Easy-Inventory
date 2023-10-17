@@ -1,5 +1,6 @@
 ﻿@page "/productUpdate/{Id:int}"
 
+@using ServiceLayer.Model;
 @using ServiceLayer.ProductCategoryServices;
 @using ServiceLayer.ProductCategoryServices.Concrete;
 @using ServiceLayer.ProductService;
@@ -48,7 +49,7 @@
                             <FluentGridItem xs="6">
                                 <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.Category" TOption="string">
 
-                                    <FluentOption Value="(Select Category)">(Select Category)</FluentOption> 
+                                    <FluentOption Value="(Select Category)">(Select Category)</FluentOption>
 
                                     @foreach (var dta in cats)
                                     {
@@ -66,6 +67,13 @@
                     </FluentGridItem>
                 </FluentGrid>
             </FluentStack>
+            <br />
+            <FluentGrid Spacing="3" Justify="@Justification">
+                <FluentGridItem xs="12" sm="6">
+                    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+                </FluentGridItem>
+
+            </FluentGrid>
         </EditForm>
 
     </div>
@@ -88,10 +96,10 @@
         try
         {
             base.OnInitialized();
-        
+
             IsLoading = true;
-          
-            model =  _productServices.GetProduct(Id);
+
+            model = _productServices.GetProduct(Id);
             cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
             IsLoading = false;
         }
@@ -103,11 +111,62 @@
 
 
     }
-   
+    private async void init()
+    {
+        model = new ProductDto();
+
+
+    }
 
 
     private async void OnValidSubmit()
     {
+        if (model.Category == "(Select Category)")
+        {
+            _dialogService.ShowInfo("Pilih Category", "Save");
+            return;
+        }
+        try
+        {
+            IsLoading = true;
+            await Task.Delay(200);
+            ProductDto a = new ProductDto()
+                {
+                    ProductName = model.ProductName,
+                    ProductDescription = model.ProductDescription,
+                    SKU = model.SKU,
+                    CategoryId = await _categoryServices.GetCategoryId(model.Category),
+                    Price = model.Price,
+                    Category = model.Category
+
+                };
+            
+            ServiceResponseDTO<bool> result = new();
+
+            result = await _productServices.UpdateAsync(a);
+            IsLoading = false;
+            // berikan pesan
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Save");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Save");
+            }
+
+            result = new();
+            init();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+
 
     }
 }

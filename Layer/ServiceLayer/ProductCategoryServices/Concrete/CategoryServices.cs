@@ -121,10 +121,27 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
                 if (cat != null)
                 {
                     cat.Category = objDTO.Category;
-                    await _context.SaveChangesAsync();
-                    result.Success = true;
-                    result.Message = "Data disimpan";
-                    return result;
+                  
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        // The operation was successful, and data was saved to the database.
+                        // You can put your success handling code here.
+
+                        result.Success = true;
+                        result.Message = "Data disimpan";
+                        return result;
+                    }
+                    else
+                    {
+                        // The operation was not successful, and no data was saved to the database.
+                        // You can handle the failure here, possibly by throwing an exception or logging an error.
+
+                        result.Success = false;
+                        result.Message = "Data belum disimpan";
+                        return result;
+                    }
+
                 }
                 else
                 {
@@ -246,10 +263,19 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
                     _context.ProductCategories.Remove(categoryToDelete);
 
                     // Step 3: Save the changes to the database
-                    await _context.SaveChangesAsync();
-                    result.Success = true;
-                    result.Message = "Data dihapus";
-                    return result;
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        result.Success = true;
+                        result.Message = "Data dihapus";
+                        return result;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Data tidak dihapus";
+                        return result;
+                    }
                 }
                 else
                 {

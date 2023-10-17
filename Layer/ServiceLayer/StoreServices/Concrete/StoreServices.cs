@@ -45,7 +45,7 @@ namespace ServiceLayer.StoreServices.Concrete
 
         }
 
-  
+
         public async Task<ServiceResponseDTO<bool>> CreateAsync(StoreDto objDTO)
         {
             ServiceResponseDTO<bool> result = new();
@@ -59,7 +59,7 @@ namespace ServiceLayer.StoreServices.Concrete
             }
 
             objDTO.StoreId = Id;
-           
+
 
             try
             {
@@ -100,5 +100,110 @@ namespace ServiceLayer.StoreServices.Concrete
             }
 
         }
+
+        public async Task<IEnumerable<StoreDto>?> GetStoreListAsycn()
+        {
+            try
+            {
+                var query = (from store in _context.Stores
+                             select new StoreDto
+                             {
+
+                                 StoreId = store.StoreId,
+                                 StoreName = store.StoreName
+
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ServiceResponseDTO<bool>> DeleteLocationAsync(int StoreId)
+        {
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                // Step 1: Retrieve the entity you want to delete
+                var categoryToDelete = await _context.Stores.FindAsync(StoreId);
+                if (categoryToDelete != null)
+                {
+                    // Step 2: Remove the entity from the context
+                     _context.Stores.Remove(categoryToDelete);
+
+                    // Step 3: Save the changes to the database
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        result.Success = true;
+                        result.Message = "Data dihapus";
+                        return result;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Data tidak dihapus";
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = "Data tidak bisa dihapus";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+                return result;
+            }
+
+        }
+        public async Task<ServiceResponseDTO<bool>> UpdateAsync(StoreDto objDTO)
+        {
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                var st = await _context.Stores.FirstOrDefaultAsync(u => u.StoreId == objDTO.StoreId);
+
+                if (st != null)
+                {
+                    st.StoreName= objDTO.StoreName;
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        result.Success = true;
+                        result.Message = "Data Dismpan";
+                        return result;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Data tidak disimpan";
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = "Data tidak disimpan";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = "Data tidak disimpan";
+                return result;
+            }
+        }
+
     }
 }

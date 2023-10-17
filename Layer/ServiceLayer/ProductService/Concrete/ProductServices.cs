@@ -4,6 +4,7 @@ using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using ServiceLayer.Model;
+using ServiceLayer.StoreServices;
 using System.Data;
 
 namespace ServiceLayer.ProductService.Concrete
@@ -11,14 +12,12 @@ namespace ServiceLayer.ProductService.Concrete
     public class ProductServices
     {
         private readonly StockContext _context;
-        private readonly StockContext _productContext;
 
         private readonly ProductSKUServices _productSkuServices;
 
-        public ProductServices(StockContext context, StockContext productContext, ProductSKUServices productskuservices)
+        public ProductServices(StockContext context, ProductSKUServices productskuservices)
         {
             _context = context;
-            _productContext = productContext;
             _productSkuServices = productskuservices;
         }
 
@@ -63,7 +62,7 @@ namespace ServiceLayer.ProductService.Concrete
             {
                 try
                 {
-                    var data = await connection.QuerySingleAsync<ProductDto>(sql, new { productId});
+                    var data = await connection.QuerySingleAsync<ProductDto>(sql, new { productId });
                     return data;
                 }
                 catch (Exception ex)
@@ -72,13 +71,13 @@ namespace ServiceLayer.ProductService.Concrete
                 }
             }
         }
-        public   ProductDto? GetProduct(int productId)
+        public ProductDto? GetProduct(int productId)
         {
             try
             {
-               // IEnumerable<ProductDto>? products;
-                var query = (from cat in _productContext.Products
-                                 where cat.ProductId == productId
+                // IEnumerable<ProductDto>? products;
+                var query = (from cat in _context.Products
+                             where cat.ProductId == productId
                              select new ProductDto
                              {
                                  ProductId = cat.ProductId,
@@ -89,7 +88,7 @@ namespace ServiceLayer.ProductService.Concrete
                                  SKU = cat.ProductSku.SKU,
                                  Price = cat.ProductSku.Price
                              });
-                var data =  query.SingleOrDefault(); // Use SingleOrDefault() here
+                var data = query.SingleOrDefault(); // Use SingleOrDefault() here
                 return data;
             }
             catch (Exception ex)
@@ -247,6 +246,56 @@ namespace ServiceLayer.ProductService.Concrete
             {
                 result.Success = false;
                 result.Message = ex.Message;
+                return result;
+            }
+        }
+
+
+        public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO)
+        {
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                var prod = await _context.Products.FirstOrDefaultAsync(u => u.ProductId == objDTO.ProductId);
+                if (prod != null)
+                {
+                    prod.ProductName = objDTO.ProductName;
+                    prod.CategoryId = objDTO.CategoryId;
+                    prod.ProductDescription = objDTO.ProductDescription;
+                    prod.ProductSku.SKU = objDTO.SKU;
+                    prod.ProductSku.Price = objDTO.Price;
+                  
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        // The operation was successful, and data was saved to the database.
+                        // You can put your success handling code here.
+
+                        result.Success = true;
+                        result.Message = "Data disimpan";
+                        return result;
+                    }
+                    else
+                    {
+                        // The operation was not successful, and no data was saved to the database.
+                        // You can handle the failure here, possibly by throwing an exception or logging an error.
+
+                        result.Success = false;
+                        result.Message = "Data belum disimpan";
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = "Data tidak disimpan";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = "Data tidak disimpan";
                 return result;
             }
         }
