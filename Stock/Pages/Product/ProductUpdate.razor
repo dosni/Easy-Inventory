@@ -89,6 +89,8 @@
 
     JustifyContent Justification = JustifyContent.FlexStart;
     public ProductDto? model { get; set; }
+    public string oldSku { get; set; } = string.Empty;
+
     IQueryable<ProductDto>? products;
 
     protected override async Task OnInitializedAsync()
@@ -100,6 +102,8 @@
             IsLoading = true;
 
             model = _productServices.GetProduct(Id);
+            oldSku = model.SKU;
+
             cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
             IsLoading = false;
         }
@@ -107,17 +111,12 @@
         {
             string msg = ex.Message;
         }
-
-
-
     }
+
     private async void init()
     {
         model = new ProductDto();
-
-
     }
-
 
     private async void OnValidSubmit()
     {
@@ -126,24 +125,27 @@
             _dialogService.ShowInfo("Pilih Category", "Save");
             return;
         }
+
         try
         {
             IsLoading = true;
             await Task.Delay(200);
             ProductDto a = new ProductDto()
                 {
+                    ProductId = Id,
                     ProductName = model.ProductName,
                     ProductDescription = model.ProductDescription,
                     SKU = model.SKU,
                     CategoryId = await _categoryServices.GetCategoryId(model.Category),
                     Price = model.Price,
                     Category = model.Category
-
                 };
-            
-            ServiceResponseDTO<bool> result = new();
 
-            result = await _productServices.UpdateAsync(a);
+            ServiceResponseDTO<bool> result = new();
+            
+           
+
+            result = await _productServices.UpdateAsync(a,oldSku);
             IsLoading = false;
             // berikan pesan
 

@@ -125,11 +125,12 @@ namespace ServiceLayer.ProductService.Concrete
                 var flg = await _productSkuServices.CreateAsync(ItemSkuToAdd);
 
                 // kalau Product SKU bisa disimpan maka simpan product
-                // 
+
                 if (flg.Success == true)
                 {
                     // The operation was successful, and data was saved to the database.
                     // You can put your success handling code here.
+
                     var itemToAdd = new Product
                     {
                         ProductId = Id,
@@ -137,28 +138,30 @@ namespace ServiceLayer.ProductService.Concrete
                         ProductName = objDTO.ProductName,
                         ProductDescription = objDTO.ProductDescription,
                         ProductImage = string.Empty
-
                     };
+
                     _context.Add(itemToAdd);
 
-
-                    await _context.SaveChangesAsync();
-                    result.Success = true;
-                    result.Message = "Data disimpan";
-                    return result;
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        result.Success = true;
+                        result.Message = "Data disimpan";
+                        return result;
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Data belum disimpan";
+                        return result;
+                    }
                 }
                 else
                 {
-                    // The operation was not successful, and no data was saved to the database.
-                    // You can handle the failure here, possibly by throwing an exception or logging an error.
-
                     result.Success = false;
                     result.Message = "Data belum disimpan";
                     return result;
                 }
-
-
-
             }
             catch (Exception ex)
             {
@@ -251,35 +254,31 @@ namespace ServiceLayer.ProductService.Concrete
         }
 
 
-        public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO)
+        public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO, string oldsku)
         {
             ServiceResponseDTO<bool> result = new();
             try
             {
                 var prod = await _context.Products.FirstOrDefaultAsync(u => u.ProductId == objDTO.ProductId);
+
                 if (prod != null)
                 {
                     prod.ProductName = objDTO.ProductName;
                     prod.CategoryId = objDTO.CategoryId;
                     prod.ProductDescription = objDTO.ProductDescription;
-                    prod.ProductSku.SKU = objDTO.SKU;
-                    prod.ProductSku.Price = objDTO.Price;
-                  
-                    var affectedRows = await _context.SaveChangesAsync();
-                    if (affectedRows > 0)
-                    {
-                        // The operation was successful, and data was saved to the database.
-                        // You can put your success handling code here.
 
+
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows >= 0)
+                    {
+                        var flg = await _productSkuServices.UpdateAsync(objDTO.ProductId,objDTO.SKU, objDTO.Price, oldsku);
                         result.Success = true;
                         result.Message = "Data disimpan";
                         return result;
+
                     }
                     else
                     {
-                        // The operation was not successful, and no data was saved to the database.
-                        // You can handle the failure here, possibly by throwing an exception or logging an error.
-
                         result.Success = false;
                         result.Message = "Data belum disimpan";
                         return result;
