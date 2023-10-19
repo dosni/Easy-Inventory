@@ -13,13 +13,46 @@ namespace ServiceLayer.ProductService.Concrete
             _context = context;
         }
 
+        /// <summary>
+        /// Membuat Custom AutoNumber.
+        /// Menambah satu kepada setiap record baru
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> GetIDAsync()
+        {
+
+            try
+            {
+                var obj = await _context.ProductSkus
+                   .OrderBy(pc => pc.SkuId)
+                   .LastOrDefaultAsync();
+
+                if (obj != null)
+                {
+                    return (obj.SkuId + 1);
+                }
+                else
+                {
+                    return 1;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+
+
         public async Task<ServiceResponseDTO<bool>> CreateAsync(ProductSKUDto objDTO)
         {
             ServiceResponseDTO<bool> result = new();
+            int Id = await GetIDAsync();
             try
             {
                 var itemToAdd = new ProductSku
                 {
+                    SkuId = Id,
                     ProductId = objDTO.ProductId,
                     SKU = objDTO.SKU,
                     Price = objDTO.Price

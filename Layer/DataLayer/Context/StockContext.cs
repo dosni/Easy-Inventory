@@ -14,9 +14,6 @@ namespace DataLayer.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
           
-
-           
-
             modelBuilder.ApplyConfiguration(new ProductCategoryConfig());
             modelBuilder.ApplyConfiguration(new ProductConfig());
             modelBuilder.ApplyConfiguration(new StoreConfig());

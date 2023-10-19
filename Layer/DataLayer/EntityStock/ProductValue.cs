@@ -8,7 +8,7 @@ namespace DataLayer.EntityStock
 {
     public class ProductValue
     {
-        public string SKU { get; set; }
+        public int SkuId { get; set; }
         public int PropertyId { get; set; }
         public string PropertyValue { get; set; }
         public ProductSku ProductSku { get; set; }

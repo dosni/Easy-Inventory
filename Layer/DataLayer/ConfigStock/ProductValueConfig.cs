@@ -14,9 +14,8 @@ namespace DataLayer.ConfigStock
     {
         public void Configure(EntityTypeBuilder<ProductValue> modelBuilder)
         {
-            modelBuilder.HasKey(b => new { b.SKU, b.PropertyId });
-            modelBuilder.Property(b => b.SKU).IsRequired().HasColumnType("varchar(50)");
-            modelBuilder.Property(b => b.PropertyValue).IsRequired().HasColumnType("varchar(50)");
+            modelBuilder.HasKey(b => new { b.SkuId, b.PropertyId });
+             modelBuilder.Property(b => b.PropertyValue).IsRequired().HasColumnType("varchar(50)");
 
             //one to many relation between productProperty and ProductValue.  
             modelBuilder
@@ -26,7 +25,7 @@ namespace DataLayer.ConfigStock
             //one to many relation between productSku and ProductValue.  
             modelBuilder
                .HasOne(b => b.ProductSku)
-               .WithMany(b => b.ProductValues).HasForeignKey(b => b.SKU);
+               .WithMany(b => b.ProductValues).HasForeignKey(b => b.SkuId);
         }
     }
 }

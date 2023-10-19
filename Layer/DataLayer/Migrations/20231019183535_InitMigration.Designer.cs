@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(StockContext))]
-    [Migration("20231011202547_InitMigration")]
+    [Migration("20231019183535_InitMigration")]
     partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,13 +76,16 @@ namespace DataLayer.Migrations
 
                     b.HasKey("PropetyId");
 
+                    b.HasIndex("ProductId")
+                        .IsUnique();
+
                     b.ToTable("ProductProperties");
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductSku", b =>
                 {
-                    b.Property<string>("SKU")
-                        .HasColumnType("varchar(50)");
+                    b.Property<int>("SkuId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("Decimal(18,2)");
@@ -90,15 +93,25 @@ namespace DataLayer.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.HasKey("SKU");
+                    b.Property<string>("SKU")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("SkuId");
+
+                    b.HasIndex("ProductId")
+                        .IsUnique();
+
+                    b.HasIndex("SKU")
+                        .IsUnique();
 
                     b.ToTable("ProductSkus");
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductValue", b =>
                 {
-                    b.Property<string>("SKU")
-                        .HasColumnType("varchar(50)");
+                    b.Property<int>("SkuId")
+                        .HasColumnType("int");
 
                     b.Property<int>("PropertyId")
                         .HasColumnType("int");
@@ -107,7 +120,7 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(50)");
 
-                    b.HasKey("SKU", "PropertyId");
+                    b.HasKey("SkuId", "PropertyId");
 
                     b.HasIndex("PropertyId");
 
@@ -157,6 +170,24 @@ namespace DataLayer.Migrations
                     b.Navigation("ProductCategory");
                 });
 
+            modelBuilder.Entity("DataLayer.EntityStock.ProductProperty", b =>
+                {
+                    b.HasOne("DataLayer.EntityStock.Product", null)
+                        .WithOne("productProperty")
+                        .HasForeignKey("DataLayer.EntityStock.ProductProperty", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DataLayer.EntityStock.ProductSku", b =>
+                {
+                    b.HasOne("DataLayer.EntityStock.Product", null)
+                        .WithOne("ProductSku")
+                        .HasForeignKey("DataLayer.EntityStock.ProductSku", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DataLayer.EntityStock.ProductValue", b =>
                 {
                     b.HasOne("DataLayer.EntityStock.ProductProperty", "ProductProperty")
@@ -167,7 +198,7 @@ namespace DataLayer.Migrations
 
                     b.HasOne("DataLayer.EntityStock.ProductSku", "ProductSku")
                         .WithMany("ProductValues")
-                        .HasForeignKey("SKU")
+                        .HasForeignKey("SkuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -197,7 +228,13 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.EntityStock.Product", b =>
                 {
+                    b.Navigation("ProductSku")
+                        .IsRequired();
+
                     b.Navigation("Stocks");
+
+                    b.Navigation("productProperty")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductCategory", b =>

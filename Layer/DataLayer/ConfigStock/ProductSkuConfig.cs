@@ -14,8 +14,16 @@ namespace DataLayer.ConfigStock
     {
         public void Configure(EntityTypeBuilder<ProductSku> modelBuilder)
         {
-            modelBuilder.HasKey(b => b.SKU);
+            modelBuilder.HasKey(b => b.SkuId);
+
+            // jangan buat AutoNumber 
+            modelBuilder.Property<int>("SkuId")
+              .ValueGeneratedNever()
+              .HasColumnType("int");
+
             modelBuilder.Property(b => b.SKU).IsRequired().HasColumnType("varchar(50)");
+            modelBuilder.HasIndex(b => b.SKU).IsUnique(true);
+
             modelBuilder.Property(b => b.ProductId).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.Price).IsRequired(true).HasColumnType("Decimal(18,2)");
         }
