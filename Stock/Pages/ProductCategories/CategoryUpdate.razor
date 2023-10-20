@@ -5,7 +5,6 @@
 @using ServiceLayer.ProductCategoryServices.Concrete;
 
 @inject CategoryServices _CategoryServices
-@inject IDialogService _dialogService
 
 
 <PageTitle>CategoryUpdate</PageTitle>
@@ -15,6 +14,8 @@
         <FluentProgress></FluentProgress>
     </div>
 }
+<FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="GoBack" />
+
 <div style="padding: 1.5rem;">
     <FluentLabel Typo="Typography.Header"> Update Category </FluentLabel>
     <br />
@@ -66,7 +67,10 @@
         init();
 
     }
-
+    private async Task GoBack()
+    {
+        await jsruntime.InvokeVoidAsync("history.back");
+    }
     private async void init()
     {
         model = new CategoryDto();

@@ -8,6 +8,7 @@ namespace ServiceLayer.ProductService.Concrete
     public class ProductSKUServices
     {
         private readonly StockContext _context;
+
         public ProductSKUServices(StockContext context)
         {
             _context = context;
@@ -125,37 +126,25 @@ namespace ServiceLayer.ProductService.Concrete
             ServiceResponseDTO<bool> result = new();
             try
             {
-                // Untuk update pada key value harus di hapus
-                var flg = await DeleteProductSKUAsync(ProductId, oldsku);
+                var prod = await _context.ProductSkus.FirstOrDefaultAsync(u => u.SKU == oldsku);
 
-                if (flg.Success)
+                if (prod != null)
                 {
-                    var itemToAdd = new ProductSku
-                    {
-                        ProductId = ProductId,
-                        SKU = productSku,
-                        Price = price
-                    };
+                    prod.SKU = productSku;
+                    prod.Price = price;
 
-                    _context.Add(itemToAdd);
                     var affectedRows = await _context.SaveChangesAsync();
 
                     if (affectedRows > 0)
                     {
-                        // The operation was successful, and data was saved to the database.
-                        // You can put your success handling code here.
-
                         result.Success = true;
-                        result.Message = "Data disimpan";
+                        result.Message = "Product SKU telah berubah";
                         return result;
                     }
                     else
                     {
-                        // The operation was not successful, and no data was saved to the database.
-                        // You can handle the failure here, possibly by throwing an exception or logging an error.
-
                         result.Success = false;
-                        result.Message = "Data belum disimpan";
+                        result.Message = "Product SKU tidak dirubah";
                         return result;
                     }
 
@@ -163,10 +152,9 @@ namespace ServiceLayer.ProductService.Concrete
                 else
                 {
                     result.Success = false;
-                    result.Message = "Data belum disimpan";
+                    result.Message = "Data tidak disimpan";
                     return result;
                 }
-          
             }
             catch (Exception ex)
             {
@@ -174,7 +162,6 @@ namespace ServiceLayer.ProductService.Concrete
                 result.Message = ex.Message;
                 return result;
             }
-
         }
 
 

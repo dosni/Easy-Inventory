@@ -267,20 +267,19 @@ public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO, strin
             prod.CategoryId = objDTO.CategoryId;
             prod.ProductDescription = objDTO.ProductDescription;
 
-
             var affectedRows = await _context.SaveChangesAsync();
-            if (affectedRows >= 0)
-            {
-                var flg = await _productSkuServices.UpdateAsync(objDTO.ProductId, objDTO.SKU, objDTO.Price, oldsku);
-                result.Success = true;
-                result.Message = "Data disimpan";
-                return result;
+            var flg = await _productSkuServices.UpdateAsync(objDTO.ProductId, objDTO.SKU, objDTO.Price, oldsku);
 
+            if (affectedRows > 0)
+            {
+                result.Success = true;
+                result.Message = "Produk berubah . " + flg.Message;
+                return result;
             }
             else
             {
                 result.Success = false;
-                result.Message = "Data belum disimpan";
+                result.Message = "Produk tidak berubah." + flg.Message;  
                 return result;
             }
         }
