@@ -187,7 +187,7 @@ public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
                          ProductDescription = cat.ProductDescription,
                          SKU = cat.ProductSkus.FirstOrDefault().SKU,
                          Price = cat.ProductSkus.FirstOrDefault().Price
-                     });
+                     }); 
         var data = await query.ToListAsync();
         return data.AsQueryable();
 

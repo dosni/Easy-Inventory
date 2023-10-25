@@ -19,8 +19,7 @@ namespace DataLayer.EntityStock
 
         public ProductCategory ProductCategory { get; set; }
 
-        //public ProductSku ProductSku { get; set; }
-        //public ProductProperty productProperty { get; set; }
+     
         
         public ICollection<ProductSku> ProductSkus { get; set; }
         public ICollection<Stock> Stocks { get; set; }
