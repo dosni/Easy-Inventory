@@ -14,10 +14,21 @@ namespace DataLayer.EntityStock
         public string ProductDescription { get; set; }  
 
         public int CategoryId { get; set; }
-        //public decimal Price { get; set; }
+      
+
+
         public ProductCategory ProductCategory { get; set; }
-        public ProductSku ProductSku { get; set; }
-        public ProductProperty productProperty { get; set; }
+
+        //public ProductSku ProductSku { get; set; }
+        //public ProductProperty productProperty { get; set; }
+        
+        public ICollection<ProductSku> ProductSkus { get; set; }
         public ICollection<Stock> Stocks { get; set; }
+        public ICollection<ProductTransaction> ProductTransactions { get; set; }
+        public ICollection<ProductTransfer> ProductTransfers { get; set; }
+
+
+       
+
     }
 }

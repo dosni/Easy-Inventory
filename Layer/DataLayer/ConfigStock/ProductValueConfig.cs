@@ -26,6 +26,9 @@ namespace DataLayer.ConfigStock
             modelBuilder
                .HasOne(b => b.ProductSku)
                .WithMany(b => b.ProductValues).HasForeignKey(b => b.SkuId);
+
+
+
         }
     }
 }

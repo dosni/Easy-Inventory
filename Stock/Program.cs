@@ -6,20 +6,20 @@ using Stock.Settings.Extensions;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddDbContext<StockContext>(options =>
-//{
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-//});
-
 builder.Services.AddDbContext<StockContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"), new MySqlServerVersion(new Version(8, 0, 31)),
-        mysqlOptions =>
-        {
-            mysqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 2,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-        }));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+//builder.Services.AddDbContext<StockContext>(options =>
+//    options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"), new MySqlServerVersion(new Version(8, 0, 31)),
+//        mysqlOptions =>
+//        {
+//            mysqlOptions.EnableRetryOnFailure(
+//                maxRetryCount: 2,
+//                maxRetryDelay: TimeSpan.FromSeconds(30),
+//                errorNumbersToAdd: null);
+//        }));
 
 
 // Add services to the container.

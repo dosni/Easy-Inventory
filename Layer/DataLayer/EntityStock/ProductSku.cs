@@ -12,7 +12,8 @@ namespace DataLayer.EntityStock
         public int ProductId { get; set; }
         public string SKU { get; set; }
         public decimal Price { get; set; }
+        
         public ICollection<ProductValue> ProductValues { get; set; }
-
+        public ICollection<Product> Products { get; set; }
     }
 }

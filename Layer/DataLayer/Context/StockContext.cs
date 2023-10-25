@@ -23,6 +23,9 @@ namespace DataLayer.Context
             modelBuilder.ApplyConfiguration(new ProductSKUConfig());
             modelBuilder.ApplyConfiguration(new ProductValueConfig());
 
+            modelBuilder.ApplyConfiguration(new ProductTransactionConfig());
+            modelBuilder.ApplyConfiguration(new ProductTransferConfig());
+
             base.OnModelCreating(modelBuilder);
 
         }
@@ -43,6 +46,9 @@ namespace DataLayer.Context
         public DbSet<ProductProperty> ProductProperties { get; set; } = null!;
         public DbSet<ProductSku> ProductSkus { get; set; } = null!;
         public DbSet<ProductValue> ProductValues { get; set; } = null!;
+
+        public DbSet<ProductTransaction> ProductTransactions { get; set; } = null!;
+        public DbSet<ProductTransfer> ProductTransfers { get; set; } = null!;
 
     }
 }

@@ -85,8 +85,8 @@ namespace ServiceLayer.ProductService.Concrete
                                  Category = cat.ProductCategory.Category,
                                  ProductName = cat.ProductName,
                                  ProductDescription = cat.ProductDescription,
-                                 SKU = cat.ProductSku.SKU,
-                                 Price = cat.ProductSku.Price
+                                 SKU = cat.ProductSkus.FirstOrDefault().SKU,
+                                 Price = cat.ProductSkus.FirstOrDefault().Price
                              });
                 var data = query.SingleOrDefault(); // Use SingleOrDefault() here
                 return data;
@@ -185,8 +185,8 @@ public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
                          Category = cat.ProductCategory.Category,
                          ProductName = cat.ProductName,
                          ProductDescription = cat.ProductDescription,
-                         SKU = cat.ProductSku.SKU,
-                         Price = cat.ProductSku.Price
+                         SKU = cat.ProductSkus.FirstOrDefault().SKU,
+                         Price = cat.ProductSkus.FirstOrDefault().Price
                      });
         var data = await query.ToListAsync();
         return data.AsQueryable();
