@@ -1,12 +1,11 @@
-﻿@page "/categoryCreate"
-@using DataLayer.EntityStock;
+﻿@page "/unitUpdate/{Id:int}/{unit}"
 @using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices.Concrete;
-@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductUnitServices.Concrete;
+@using ServiceLayer.ProductUnitServices;
 
-<PageTitle>CategoryCreate</PageTitle>
 
-@inject CategoryServices _CategoryServices
+<PageTitle>UnitUpdate</PageTitle>
+@inject UnitServices _unitServices
 
 
 @if (IsLoading == true)
@@ -15,8 +14,10 @@
         <FluentProgress></FluentProgress>
     </div>
 }
+<FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="GoBack" />
+
 <div style="padding: 1.5rem;">
-    <FluentLabel Typo="Typography.Header"> Buat Record Baru </FluentLabel>
+    <FluentLabel Typo="Typography.Header"> Update Unit </FluentLabel>
     <br />
 
     <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
@@ -24,12 +25,17 @@
         <FluentValidationSummary />
         <FluentStack Orientation="Orientation.Vertical">
             <FluentGrid Spacing="0">
-                <FluentGridItem xs="12">
+                <FluentGridItem xs="6">
                     <FluentGrid>
                         <FluentGridItem xs="6">
-                            <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.Category" Placeholder="Category" />
+                            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.UnitId" Readonly=true Placeholder="UnitId">Unit ID</FluentNumberField>
                         </FluentGridItem>
 
+                    </FluentGrid>
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.Unit" Placeholder="Unit">Unit</FluentTextField>
+                        </FluentGridItem>
                     </FluentGrid>
                 </FluentGridItem>
             </FluentGrid>
@@ -46,13 +52,14 @@
 
 
 @code {
-    private bool IsLoading { get; set; } = false;
-    public CategoryDto model { get; set; }
+    [Parameter]
+    public int Id { get; set; }
+    [Parameter]
+    public string unit { get; set; }
 
     JustifyContent Justification = JustifyContent.FlexStart;
-
-
-
+    private bool IsLoading { get; set; } = false;
+    public UnitDto model { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,50 +69,55 @@
         init();
 
     }
+    
+    private async Task GoBack()
+    {
+        await jsruntime.InvokeVoidAsync("history.back");
+    }
 
     private async void init()
     {
-        model = new CategoryDto();
-
-
+        model = new UnitDto();
+        model.UnitId= Id;
+        model.Unit = unit;
     }
 
     private async void OnValidSubmit()
     {
-        if (model.Category == string.Empty)
+        if (model.Unit == string.Empty)
         {
             return;
         }
-
         try
         {
             IsLoading = true;
             await Task.Delay(200);
 
 
-            CategoryDto a = new CategoryDto()
+            UnitDto a = new UnitDto()
                 {
-                    Category = model.Category
+                    UnitId = model.UnitId,
+                    Unit= model.Unit
+
                 };
 
             ServiceResponseDTO<bool> result = new();
 
-            result = await _CategoryServices.CreateAsync(a);
+            result = await _unitServices.UpdateAsync(a);
 
             IsLoading = false;
             // berikan pesan
 
             if (result.Success == true)
             {
-                _dialogService.ShowInfo(result.Message, "Save");
+                _dialogService.ShowInfo(result.Message, "Update");
             }
             else
             {
-                _dialogService.ShowWarning(result.Message, "Save");
+                _dialogService.ShowWarning(result.Message, "Update");
             }
 
             result = new();
-            init();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -114,6 +126,6 @@
             IsLoading = false;
             return;
         }
-
     }
+
 }

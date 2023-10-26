@@ -1,12 +1,11 @@
-﻿@page "/categoryList"
+﻿@page "/unitList"
 @using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices;
-@using ServiceLayer.ProductCategoryServices.Concrete;
+@using ServiceLayer.ProductUnitServices.Concrete;
+@using ServiceLayer.ProductUnitServices;
 
-<PageTitle>CategoryList</PageTitle>
+<PageTitle>UnitList</PageTitle>
 
-@inject CategoryServices _CategoryServices
-
+@inject UnitServices _unitServices
 
 @if (IsLoading == true)
 {
@@ -19,20 +18,24 @@
     <FluentDataGrid Items="@cats" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
                     style="height: 250px;overflow:auto;">
 
-        <PropertyColumn Property="@(c => c.CategoryId)" Title="Category Id" Align="Align.Start" />
-        <PropertyColumn Property="@(c => c.Category)" Title="Category" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.UnitId)" Title="Unit Id" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.Unit)" Title="Unit" Align="Align.Start" />
 
         <TemplateColumn Title="Edit">
-            <FluentButton Appearance="Appearance.Accent" @onclick="@(() => Edit(context.CategoryId,context.Category))">Edit</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" @onclick="@(() => Edit(context.UnitId,context.Unit))">Edit</FluentButton>
         </TemplateColumn>
+
         <TemplateColumn Title="Delete">
-            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.Delete())" @onclick="@(() => Delete(context.CategoryId,context.Category))">Delete</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.Delete())" @onclick="@(() => Delete(context.UnitId,context.Unit))">Delete</FluentButton>
         </TemplateColumn>
     </FluentDataGrid>
+
 }
+
+
 @code {
     private bool IsLoading { get; set; } = false;
-    IQueryable<CategoryDto>? cats;
+    IQueryable<UnitDto>? cats;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,14 +48,14 @@
     {
         IsLoading = true;
         await Task.Delay(200);
-        cats = (await _CategoryServices.GetEFCategoryListAsycn()).AsQueryable();
+        cats = (await _unitServices.GetUnitListAsycn()).AsQueryable();
         IsLoading = false;
 
     }
 
     private async void Edit(int Id, string cat)
     {
-        _navman.NavigateTo($"categoryUpdate/{Id}/{cat}");
+        _navman.NavigateTo($"unitUpdate/{Id}/{cat}");
 
     }
     private async void Delete(int Id, string cat)
@@ -62,7 +65,7 @@
             IsLoading = true;
             await Task.Delay(200);
             ServiceResponseDTO<bool> result = new();
-            result = await _CategoryServices.DeleteCategoryAsync(Id);
+            result = await _unitServices.DeleteUnitAsync(Id);
             IsLoading = false;
             if (result.Success == true)
             {

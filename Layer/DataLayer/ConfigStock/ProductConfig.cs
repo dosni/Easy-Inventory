@@ -27,10 +27,10 @@ namespace DataLayer.ConfigStock
                .HasOne(b => b.ProductCategory)
                .WithMany(b => b.Products).HasForeignKey(b => b.CategoryId);
 
-            //one to many relation between product and ProductSKU. Satu Produk banyak product SKU 
-            //modelBuilder
-            //   .HasOne(b => b.ProductSku)
-            //   .WithMany(b => b.Products).HasForeignKey(b => b.ProductId);
+          //  one to many relation between product and ProductSKU. Satu Produk banyak product SKU
+            modelBuilder
+               .HasOne(b => b.ProductUnit)
+               .WithMany(b => b.Products).HasForeignKey(b => b.UnitId);
         }
     }
 }

@@ -19,6 +19,11 @@ namespace ServiceLayer.ProductService
         [Required(ErrorMessage = "Product Category is required")]
         public string Category { get; set; }
         public int CategoryId { get; set; }
+
+        [Required(ErrorMessage = "Product Unit is required")]
+        public string Unit { get; set; }
+        public int UnitId { get; set; }
+
         [Required(ErrorMessage = "Product SKU is required")]
         public string SKU { get; set; }
         public decimal Price { get; set; } = 0;

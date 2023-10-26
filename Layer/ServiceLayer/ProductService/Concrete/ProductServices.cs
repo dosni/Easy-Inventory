@@ -83,6 +83,8 @@ namespace ServiceLayer.ProductService.Concrete
                                  ProductId = cat.ProductId,
                                  CategoryId = cat.CategoryId,
                                  Category = cat.ProductCategory.Category,
+                                 UnitId = cat.UnitId,
+                                 Unit = cat.ProductUnit.Unit,
                                  ProductName = cat.ProductName,
                                  ProductDescription = cat.ProductDescription,
                                  SKU = cat.ProductSkus.FirstOrDefault().SKU,
@@ -118,6 +120,7 @@ namespace ServiceLayer.ProductService.Concrete
                 {
                     ProductId = Id,
                     CategoryId = objDTO.CategoryId,
+                    UnitId = objDTO.UnitId,
                     ProductName = objDTO.ProductName,
                     ProductDescription = objDTO.ProductDescription,
                     ProductImage = string.Empty
@@ -265,6 +268,7 @@ public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO, strin
         {
             prod.ProductName = objDTO.ProductName;
             prod.CategoryId = objDTO.CategoryId;
+            prod.UnitId = objDTO.UnitId;
             prod.ProductDescription = objDTO.ProductDescription;
 
             var affectedRows = await _context.SaveChangesAsync();

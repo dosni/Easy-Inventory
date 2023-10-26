@@ -1,11 +1,9 @@
 ﻿using Dapper;
 using DataLayer.Context;
 using DataLayer.EntityStock;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Common;
 using ServiceLayer.Model;
 using System.Data;
 
@@ -91,14 +89,14 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
             }
 
         }
-        public async Task<int> GetCategoryId (string category)
+        public async Task<int> GetCategoryId(string category)
         {
             try
             {
                 var cat = await _context.ProductCategories.FirstOrDefaultAsync(u => u.Category == category);
                 if (cat != null)
                 {
-                   
+
                     return cat.CategoryId;
                 }
                 else
@@ -117,11 +115,11 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
             ServiceResponseDTO<bool> result = new();
             try
             {
-                var cat = await _context.ProductCategories.FirstOrDefaultAsync(u => u.CategoryId== objDTO.CategoryId);
+                var cat = await _context.ProductCategories.FirstOrDefaultAsync(u => u.CategoryId == objDTO.CategoryId);
                 if (cat != null)
                 {
                     cat.Category = objDTO.Category;
-                  
+
                     var affectedRows = await _context.SaveChangesAsync();
                     if (affectedRows > 0)
                     {
@@ -200,7 +198,7 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
                     result.Message = "Data belum disimpan";
                     return result;
                 }
-             
+
             }
             catch (Exception ex)
             {

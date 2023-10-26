@@ -1,13 +1,13 @@
-﻿@page "/categoryCreate"
-@using DataLayer.EntityStock;
+﻿@page "/unitCreate"
 @using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices.Concrete;
-@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductUnitServices.Concrete;
+@using ServiceLayer.ProductUnitServices;
 
-<PageTitle>CategoryCreate</PageTitle>
 
-@inject CategoryServices _CategoryServices
+<PageTitle>UnitCreate</PageTitle>
 
+
+@inject UnitServices _unitServices
 
 @if (IsLoading == true)
 {
@@ -27,7 +27,7 @@
                 <FluentGridItem xs="12">
                     <FluentGrid>
                         <FluentGridItem xs="6">
-                            <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.Category" Placeholder="Category" />
+                            <FluentTextField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value="model.Unit" Placeholder="Unit" />
                         </FluentGridItem>
 
                     </FluentGrid>
@@ -44,35 +44,26 @@
     </EditForm>
 </div>
 
-
 @code {
     private bool IsLoading { get; set; } = false;
-    public CategoryDto model { get; set; }
+    public UnitDto model { get; set; }
 
     JustifyContent Justification = JustifyContent.FlexStart;
 
-
-
-
     protected override async Task OnInitializedAsync()
     {
-
         base.OnInitialized();
-
         init();
-
     }
 
     private async void init()
     {
-        model = new CategoryDto();
-
-
+        model = new UnitDto();
     }
 
     private async void OnValidSubmit()
     {
-        if (model.Category == string.Empty)
+        if (model.Unit == string.Empty)
         {
             return;
         }
@@ -83,14 +74,14 @@
             await Task.Delay(200);
 
 
-            CategoryDto a = new CategoryDto()
+            UnitDto a = new UnitDto()
                 {
-                    Category = model.Category
+                    Unit = model.Unit
                 };
 
             ServiceResponseDTO<bool> result = new();
 
-            result = await _CategoryServices.CreateAsync(a);
+            result = await _unitServices.CreateAsync(a);
 
             IsLoading = false;
             // berikan pesan

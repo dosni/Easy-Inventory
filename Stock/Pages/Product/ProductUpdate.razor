@@ -5,11 +5,14 @@
 @using ServiceLayer.ProductCategoryServices.Concrete;
 @using ServiceLayer.ProductService;
 @using ServiceLayer.ProductService.Concrete;
+@using ServiceLayer.ProductUnitServices.Concrete;
+@using ServiceLayer.ProductUnitServices;
 
 <PageTitle>ProductUpdate</PageTitle>
 
 @inject ProductServices _productServices
 @inject CategoryServices _categoryServices
+@inject UnitServices _unitServices
 
 
 
@@ -64,6 +67,21 @@
                         </FluentGrid>
                         <FluentGrid>
                             <FluentGridItem xs="6">
+                                <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.Unit" TOption="string">
+
+                                    <FluentOption Value="(Select Unit)">(Select Unit)</FluentOption>
+
+                                    @foreach (var dta in units)
+                                    {
+                                        <FluentOption Value=@dta.Unit.ToString()>@dta.Unit.ToString()</FluentOption>
+                                    }
+
+                                </FluentCombobox>
+                            </FluentGridItem>
+                        </FluentGrid>
+
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
                                 <FluentTextArea @bind-Value="model.ProductDescription" Rows="6" Cols="40">Keterangan</FluentTextArea>
 
                             </FluentGridItem>
@@ -90,8 +108,10 @@
     public int Id { get; set; }
     private bool IsLoading { get; set; } = false;
     IQueryable<CategoryDto>? cats;
+    IQueryable<UnitDto>? units;
 
     JustifyContent Justification = JustifyContent.FlexStart;
+
     public ProductDto? model { get; set; }
     public string oldSku { get; set; } = string.Empty;
 
@@ -108,7 +128,11 @@
             model = _productServices.GetProduct(Id);
             oldSku = model.SKU;
 
+            units = (await _unitServices.GetUnitListAsycn()).AsQueryable();
             cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
+          
+
+            
             IsLoading = false;
         }
         catch (Exception ex)
@@ -132,7 +156,11 @@
             _dialogService.ShowInfo("Pilih Category", "Save");
             return;
         }
-
+        if (model.Unit == "(Select Unit)")
+        {
+            _dialogService.ShowInfo("Pilih Unit", "Save");
+            return;
+        }
         try
         {
             IsLoading = true;
@@ -144,6 +172,7 @@
                     ProductDescription = model.ProductDescription,
                     SKU = model.SKU,
                     CategoryId = await _categoryServices.GetCategoryId(model.Category),
+                    UnitId = await _unitServices.GetUnitId(model.Unit),
                     Price = model.Price,
                     Category = model.Category
                 };

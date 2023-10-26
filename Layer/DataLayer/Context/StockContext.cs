@@ -15,6 +15,7 @@ namespace DataLayer.Context
         {
           
             modelBuilder.ApplyConfiguration(new ProductCategoryConfig());
+            modelBuilder.ApplyConfiguration(new ProductUnitConfig());
             modelBuilder.ApplyConfiguration(new ProductConfig());
             modelBuilder.ApplyConfiguration(new StoreConfig());
             modelBuilder.ApplyConfiguration(new StockConfig());
@@ -49,6 +50,8 @@ namespace DataLayer.Context
 
         public DbSet<ProductTransaction> ProductTransactions { get; set; } = null!;
         public DbSet<ProductTransfer> ProductTransfers { get; set; } = null!;
+
+        public DbSet<ProductUnit> ProductUnits { get; set; } = null!;
 
     }
 }

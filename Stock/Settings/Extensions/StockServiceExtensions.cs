@@ -1,5 +1,6 @@
 ﻿using ServiceLayer.ProductCategoryServices.Concrete;
 using ServiceLayer.ProductService.Concrete;
+using ServiceLayer.ProductUnitServices.Concrete;
 using ServiceLayer.StoreServices.Concrete;
 
 namespace Stock.Settings.Extensions
@@ -8,6 +9,7 @@ namespace Stock.Settings.Extensions
     {
         public static void AddStockServices(this IServiceCollection services)
         {
+            services.AddScoped<UnitServices>();
             services.AddScoped<CategoryServices>();
             services.AddScoped<ProductServices>();
             services.AddScoped<ProductSKUServices>();

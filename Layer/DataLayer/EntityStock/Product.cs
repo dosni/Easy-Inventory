@@ -14,9 +14,10 @@ namespace DataLayer.EntityStock
         public string ProductDescription { get; set; }  
 
         public int CategoryId { get; set; }
-      
+        public int UnitId { get; set; }
 
 
+        public ProductUnit ProductUnit { get; set; }
         public ProductCategory ProductCategory { get; set; }
 
      
