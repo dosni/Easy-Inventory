@@ -71,6 +71,7 @@ namespace ServiceLayer.ProductService.Concrete
                 }
             }
         }
+     
         public ProductDto? GetProduct(int productId)
         {
             try
@@ -174,6 +175,26 @@ namespace ServiceLayer.ProductService.Concrete
             }
 
 }
+
+        public async Task<IEnumerable<ProductListDto>?> GetProductNameListAsycn()
+        {
+            try
+            {
+                var query = (from cat in _context.Products
+                             select new ProductListDto
+                             {
+                                 ProductId = cat.ProductId,
+                                 ProductName = cat.ProductName
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return null;
+            }
+        }
 
 public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
 {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.ProductTransactionServices
 {
-    public class TransactionDto
+    public class InitialStockDto
     {
       
         public int TransactionId { get; set; }

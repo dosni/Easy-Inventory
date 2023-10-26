@@ -1,0 +1,113 @@
+﻿@page "/initStock"
+@using ServiceLayer.ProductService;
+@using ServiceLayer.ProductService.Concrete;
+@using ServiceLayer.ProductTransactionServices;
+@using ServiceLayer.StoreServices.Concrete;
+
+<PageTitle>InitStock</PageTitle>
+
+@inject StoreServices _storeServices
+@inject ProductServices _productServices
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+
+@if (prods != null)
+{
+    <div style="padding: 1.5rem;">
+        <FluentLabel Typo="Typography.Header"> Initial Stock </FluentLabel>
+        <br />
+
+        <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <FluentValidationSummary />
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentGrid Spacing="0">
+                    <FluentGridItem xs="6">
+                        <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.ProductName" TOption="string">
+                            <FluentOption Selected=true Value="(Select product)">(Select Product)</FluentOption>
+
+                            @foreach (var dta in prods)
+                            {
+                                <FluentOption Value=@dta.ProductName.ToString()>@dta.ProductName.ToString()</FluentOption>
+                            }
+
+                        </FluentCombobox>
+                    </FluentGridItem>
+
+                </FluentGrid>
+            </FluentStack>
+            <br />
+            <FluentGrid Spacing="3" Justify="@Justification">
+                <FluentGridItem xs="12" sm="6">
+                    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+                </FluentGridItem>
+
+            </FluentGrid>
+        </EditForm>
+
+    </div>
+}
+
+
+@code {
+    private bool IsLoading { get; set; } = false;
+
+    public InitialStockDto model { get; set; }
+
+    IQueryable<ProductListDto>? prods;
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            base.OnInitialized();
+            await Loading();
+
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+        }
+    }
+
+    private async Task Loading()
+    {
+        try
+        {
+            IsLoading = true;
+
+            // await Task.Delay(200);
+
+            prods = (await _productServices.GetProductNameListAsycn()).AsQueryable();
+
+            init();
+
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+        }
+
+    }
+
+    private async void init()
+    {
+        model = new InitialStockDto();
+    
+
+    }
+
+    private async void OnValidSubmit()
+    {
+
+    }
+
+}

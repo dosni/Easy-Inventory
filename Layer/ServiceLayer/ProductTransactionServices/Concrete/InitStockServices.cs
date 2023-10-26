@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.ProductTransactionServices.Concrete
 {
-    public class StockAwalServices
+    public class InitStockServices
     {
         private readonly StockContext _context;
 
-        public StockAwalServices(StockContext context)
+        public InitStockServices(StockContext context)
         {
             _context = context;
         }
@@ -51,7 +51,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
             }
         }
 
-        public async Task<ServiceResponseDTO<bool>> CreateAsync(TransactionDto objDTO)
+        public async Task<ServiceResponseDTO<bool>> CreateAsync(InitialStockDto objDTO)
         {
             ServiceResponseDTO<bool> result = new();
             int Id = await GetIDAsync();
@@ -67,7 +67,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
 
             try
             {
-                var ItemToAdd = new TransactionDto
+                var ItemToAdd = new InitialStockDto
                 {
                     TransactionId = Id,
                     TransactionDate = objDTO.TransactionDate,
