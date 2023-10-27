@@ -1,0 +1,82 @@
+﻿@page "/combo"
+@using ServiceLayer.ProductCategoryServices;
+@using ServiceLayer.ProductCategoryServices.Concrete;
+
+<PageTitle>ComboBox</PageTitle>
+
+@inject CategoryServices _categoryServices
+
+
+
+<h4>From list of Option&lt;string&gt; items</h4>
+<p>Second item in the list is initially selected through the <code>OptionSelected</code> (Func delegate) parameter.</p>
+
+<FluentCombobox Items=@stringOptions
+                OptionText="@(i => i.Text)"
+                OptionValue="@(i => i.Value)"
+                OptionSelected="@(i => i.Selected)"
+@bind-SelectedOption="@selectedStringOption"
+@bind-Value="@stringValue" />
+
+
+<p>
+    Selected Value: @stringValue<br />
+    Selected Item (strongly typed): <br />
+    Value: @selectedStringOption?.Value (Type: @(selectedStringOption?.GetType())) <br />
+    Text: @selectedStringOption?.Text
+</p>
+
+@code 
+{
+    private bool IsLoading { get; set; } = false;
+    IQueryable<CategoryDto>? cats;
+    // public CategoryDto model { get; set; }
+    List<Option<string>> stringOptions = new();
+
+    string? stringValue;
+    Option<string> selectedStringOption = default!;
+    string? stringText;
+
+    
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+    protected override async Task OnInitializedAsync()
+    {
+
+        base.OnInitialized();
+        IsLoading = true;
+
+
+        cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
+
+        stringOptions.Add(new Option<string>
+            {
+                 Value = "0", 
+                 Text = "(Pilih Category)",
+                 Selected = true // You can set this based on your logic
+            });
+
+        stringValue = "0";
+        stringText = @selectedStringOption?.Text ;
+
+        foreach (var item in cats)
+        {
+            stringOptions.Add(new Option<string>
+                {
+                    Value = item.CategoryId.ToString(), // Assuming CategoryId is an integer
+                    Text = item.Category,
+                    Selected = false // You can set this based on your logic
+                });
+        }
+
+        IsLoading = false;
+        init();
+
+    }
+    private async void init()
+    {
+       // model = new CategoryDto();
+    }
+
+
+}

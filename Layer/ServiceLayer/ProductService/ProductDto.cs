@@ -16,12 +16,15 @@ namespace ServiceLayer.ProductService
         public string ProductImage { get; set; }
         public string ProductDescription { get; set; }
 
-        [Required(ErrorMessage = "Product Category is required")]
+
         public string Category { get; set; }
+        [Required(ErrorMessage = "Product Category is required")]
         public int CategoryId { get; set; }
 
-        [Required(ErrorMessage = "Product Unit is required")]
+
         public string Unit { get; set; }
+
+        [Required(ErrorMessage = "Product Unit is required")]
         public int UnitId { get; set; }
 
         [Required(ErrorMessage = "Product SKU is required")]

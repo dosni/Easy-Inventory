@@ -26,8 +26,9 @@
 <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="GoBack" />
 
 
-@if (cats != null)
+@if (cats != null && units != null)
 {
+
     <div style="padding: 1.5rem;">
         <FluentLabel Typo="Typography.Header"> Update Product </FluentLabel>
         <br />
@@ -54,32 +55,24 @@
                         </FluentGrid>
                         <FluentGrid>
                             <FluentGridItem xs="6">
-                                <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.Category" TOption="string">
-
-                                    <FluentOption Value="(Select Category)">(Select Category)</FluentOption>
-
-                                    @foreach (var dta in cats)
-                                    {
-                                        <FluentOption Value=@dta.Category.ToString()>@dta.Category.ToString()</FluentOption>
-                                    }
-                                </FluentCombobox>
+                                <FluentCombobox Items=@stringOptionsCat
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedCategoryId"
+                                @bind-Value="@stringCategory" />
                             </FluentGridItem>
                         </FluentGrid>
                         <FluentGrid>
                             <FluentGridItem xs="6">
-                                <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.Unit" TOption="string">
-
-                                    <FluentOption Value="(Select Unit)">(Select Unit)</FluentOption>
-
-                                    @foreach (var dta in units)
-                                    {
-                                        <FluentOption Value=@dta.Unit.ToString()>@dta.Unit.ToString()</FluentOption>
-                                    }
-
-                                </FluentCombobox>
+                                <FluentCombobox Items=@stringOptionsUnit
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedUnitId"
+                                @bind-Value="@stringUnit" />
                             </FluentGridItem>
                         </FluentGrid>
-
                         <FluentGrid>
                             <FluentGridItem xs="6">
                                 <FluentTextArea @bind-Value="model.ProductDescription" Rows="6" Cols="40">Keterangan</FluentTextArea>
@@ -99,20 +92,34 @@
         </EditForm>
 
     </div>
-
 }
+
+
+
 
 
 @code {
     [Parameter]
     public int Id { get; set; }
     private bool IsLoading { get; set; } = false;
+
+    List<Option<string>> stringOptionsCat = new();
+    string? stringCategory = "(Select Category)";
+
+    List<Option<string>> stringOptionsUnit = new();
+    string? stringUnit = "(Select Unit)";
+
+    Option<string> selectedCategoryId = default!;
+
+    Option<string> selectedUnitId = default!;
+
+
     IQueryable<CategoryDto>? cats;
     IQueryable<UnitDto>? units;
 
     JustifyContent Justification = JustifyContent.FlexStart;
 
-    public ProductDto? model { get; set; }
+    public ProductDto? model { get; set; } = new();
     public string oldSku { get; set; } = string.Empty;
 
     IQueryable<ProductDto>? products;
@@ -124,15 +131,21 @@
             base.OnInitialized();
 
             IsLoading = true;
-
+            await Task.Delay(200);
             model = _productServices.GetProduct(Id);
+
+
+            // selectedCategoryId.Value = model?.CategoryId.ToString();
+
             oldSku = model.SKU;
 
             units = (await _unitServices.GetUnitListAsycn()).AsQueryable();
             cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
-          
 
-            
+            init();
+
+     
+       
             IsLoading = false;
         }
         catch (Exception ex)
@@ -143,24 +156,47 @@
 
     private async void init()
     {
-        model = new ProductDto();
+
+        foreach (var item in cats)
+        {
+            stringOptionsCat.Add(new Option<string>
+                {
+                    Value = item.CategoryId.ToString(), // Assuming CategoryId is an integer
+                    Text = item.Category,
+                    Selected = (item.CategoryId == model.CategoryId)
+                });
+        }
+
+        foreach (var item in units)
+        {
+            stringOptionsUnit.Add(new Option<string>
+                {
+                    Value = item.UnitId.ToString(), // Assuming CategoryId is an integer
+                    Text = item.Unit,
+                    Selected = (item.UnitId == model.UnitId) // You can set this based on your logic
+                });
+        }
     }
+
     private async Task GoBack()
     {
         await jsruntime.InvokeVoidAsync("history.back");
     }
+
     private async void OnValidSubmit()
     {
-        if (model.Category == "(Select Category)")
+        if (selectedCategoryId.Text == "(Select Category)" || selectedCategoryId.Text == null)
         {
             _dialogService.ShowInfo("Pilih Category", "Save");
             return;
         }
-        if (model.Unit == "(Select Unit)")
+
+        if (selectedUnitId.Text == "(Select Unit)" || selectedUnitId.Text == null)
         {
             _dialogService.ShowInfo("Pilih Unit", "Save");
             return;
         }
+
         try
         {
             IsLoading = true;
@@ -171,19 +207,17 @@
                     ProductName = model.ProductName,
                     ProductDescription = model.ProductDescription,
                     SKU = model.SKU,
-                    CategoryId = await _categoryServices.GetCategoryId(model.Category),
-                    UnitId = await _unitServices.GetUnitId(model.Unit),
+                    CategoryId = Convert.ToInt32(selectedCategoryId?.Value),//await _categoryServices.GetCategoryId(model.Category),
+                    UnitId = Convert.ToInt32(selectedUnitId?.Value),//await _unitServices.GetUnitId(model.Unit),
                     Price = model.Price,
                     Category = model.Category
                 };
 
             ServiceResponseDTO<bool> result = new();
-            
-           
 
-            result = await _productServices.UpdateAsync(a,oldSku);
+            result = await _productServices.UpdateAsync(a, oldSku);
+
             IsLoading = false;
-            // berikan pesan
 
             if (result.Success == true)
             {
@@ -195,8 +229,8 @@
             }
 
             result = new();
-            init();
             StateHasChanged();
+
         }
         catch (Exception ex)
         {
