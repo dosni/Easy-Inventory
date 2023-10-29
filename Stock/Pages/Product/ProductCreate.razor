@@ -16,7 +16,6 @@
 @inject UnitServices _unitServices
 
 
-@inject IDialogService _dialogService
 
 @if (IsLoading == true)
 {
@@ -121,9 +120,9 @@
         cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
 
         units = (await _unitServices.GetUnitListAsycn()).AsQueryable();
-   init();
+        init();
         IsLoading = false;
-     
+
 
     }
 
@@ -197,7 +196,7 @@
                     ProductDescription = model.ProductDescription,
                     SKU = model.SKU,
                     CategoryId = Convert.ToInt32(selectedCategoryId?.Value),
-                    UnitId = Convert.ToInt32(selectedUnitId?.Value), 
+                    UnitId = Convert.ToInt32(selectedUnitId?.Value),
                     Price = model.Price,
                     Category = model.Category
 

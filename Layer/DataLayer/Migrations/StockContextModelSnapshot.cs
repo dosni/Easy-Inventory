@@ -3,6 +3,7 @@ using System;
 using DataLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -17,7 +18,9 @@ namespace DataLayer.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.21")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("DataLayer.EntityStock.Product", b =>
                 {
@@ -124,14 +127,17 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(2000)");
 
+                    b.Property<bool>("IsPosted")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("Decimal(18,2)");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Qty")
                         .HasColumnType("Decimal(18,2)");
+
+                    b.Property<int>("SkuId")
+                        .HasColumnType("int");
 
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
@@ -145,7 +151,7 @@ namespace DataLayer.Migrations
 
                     b.HasKey("TransactionId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("SkuId");
 
                     b.HasIndex("StoreId");
 
@@ -168,11 +174,11 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(2000)");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Qty")
                         .HasColumnType("Decimal(18,2)");
+
+                    b.Property<int>("SkuId")
+                        .HasColumnType("int");
 
                     b.Property<int>("StoreIdFrom")
                         .HasColumnType("int");
@@ -185,7 +191,7 @@ namespace DataLayer.Migrations
 
                     b.HasKey("TransactionId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("SkuId");
 
                     b.ToTable("ProductTransfers");
                 });
@@ -228,7 +234,7 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.EntityStock.Stock", b =>
                 {
-                    b.Property<int>("ProductId")
+                    b.Property<int>("SkuId")
                         .HasColumnType("int");
 
                     b.Property<int>("StoreId")
@@ -237,7 +243,7 @@ namespace DataLayer.Migrations
                     b.Property<decimal>("qty")
                         .HasColumnType("Decimal(18,2)");
 
-                    b.HasKey("ProductId", "StoreId");
+                    b.HasKey("SkuId", "StoreId");
 
                     b.HasIndex("StoreId");
 
@@ -290,9 +296,9 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductTransaction", b =>
                 {
-                    b.HasOne("DataLayer.EntityStock.Product", "Product")
+                    b.HasOne("DataLayer.EntityStock.ProductSku", "ProductSku")
                         .WithMany("ProductTransactions")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("SkuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -302,20 +308,20 @@ namespace DataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductSku");
 
                     b.Navigation("Store");
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductTransfer", b =>
                 {
-                    b.HasOne("DataLayer.EntityStock.Product", "Product")
+                    b.HasOne("DataLayer.EntityStock.ProductSku", "ProductSku")
                         .WithMany("ProductTransfers")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("SkuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductSku");
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductValue", b =>
@@ -339,9 +345,9 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.EntityStock.Stock", b =>
                 {
-                    b.HasOne("DataLayer.EntityStock.Product", "Product")
+                    b.HasOne("DataLayer.EntityStock.ProductSku", "ProductSku")
                         .WithMany("Stocks")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("SkuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -351,7 +357,7 @@ namespace DataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductSku");
 
                     b.Navigation("Store");
                 });
@@ -359,12 +365,6 @@ namespace DataLayer.Migrations
             modelBuilder.Entity("DataLayer.EntityStock.Product", b =>
                 {
                     b.Navigation("ProductSkus");
-
-                    b.Navigation("ProductTransactions");
-
-                    b.Navigation("ProductTransfers");
-
-                    b.Navigation("Stocks");
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductCategory", b =>
@@ -379,7 +379,13 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductSku", b =>
                 {
+                    b.Navigation("ProductTransactions");
+
+                    b.Navigation("ProductTransfers");
+
                     b.Navigation("ProductValues");
+
+                    b.Navigation("Stocks");
                 });
 
             modelBuilder.Entity("DataLayer.EntityStock.ProductUnit", b =>

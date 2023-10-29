@@ -23,9 +23,9 @@ namespace DataLayer.EntityStock
      
         
         public ICollection<ProductSku> ProductSkus { get; set; }
-        public ICollection<Stock> Stocks { get; set; }
-        public ICollection<ProductTransaction> ProductTransactions { get; set; }
-        public ICollection<ProductTransfer> ProductTransfers { get; set; }
+        //public ICollection<Stock> Stocks { get; set; }
+        //public ICollection<ProductTransaction> ProductTransactions { get; set; }
+        //public ICollection<ProductTransfer> ProductTransfers { get; set; }
 
 
        

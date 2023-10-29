@@ -10,6 +10,7 @@ namespace DataLayer.EntityStock
     {
         public int StoreId { get; set; }
         public string StoreName { get; set; }
+
         public ICollection<Stock> Stocks { get; set; }
         public ICollection<ProductTransaction> ProductTransactions { get; set; }
 

@@ -10,7 +10,7 @@ namespace DataLayer.EntityStock
     {
         public int TransactionId { get; set; }
         public DateTime TransactionDate { get; set; }
-        public int ProductId { get; set; }
+        public int SkuId { get; set; }
         public int StoreIdFrom { get; set; }
         public int StoreIdTo { get; set; }
         public decimal Qty { get; set; }
@@ -18,7 +18,7 @@ namespace DataLayer.EntityStock
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public Product Product { get; set; }
+        public ProductSku ProductSku { get; set; }
      
 
     }

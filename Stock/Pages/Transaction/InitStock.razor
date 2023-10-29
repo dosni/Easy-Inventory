@@ -1,13 +1,24 @@
 ﻿@page "/initStock"
+@using ServiceLayer.Model;
 @using ServiceLayer.ProductService;
 @using ServiceLayer.ProductService.Concrete;
 @using ServiceLayer.ProductTransactionServices;
+@using ServiceLayer.ProductTransactionServices.Concrete;
 @using ServiceLayer.StoreServices.Concrete;
+@using ServiceLayer.StoreServices;
 
 <PageTitle>InitStock</PageTitle>
 
+
 @inject StoreServices _storeServices
-@inject ProductServices _productServices
+
+@* @inject ProductServices _productServices
+ *@
+ 
+ @inject InitStockServices _initStockServices
+@inject ProductSKUServices _productSKUServices
+
+
 
 @if (IsLoading == true)
 {
@@ -28,17 +39,52 @@
             <FluentStack Orientation="Orientation.Vertical">
                 <FluentGrid Spacing="0">
                     <FluentGridItem xs="6">
-                        <FluentCombobox Id="combobox-with-long-list" Autocomplete="ComboboxAutocomplete.Both" @bind-Value="@model.ProductName" TOption="string">
-                            <FluentOption Selected=true Value="(Select product)">(Select Product)</FluentOption>
 
-                            @foreach (var dta in prods)
-                            {
-                                <FluentOption Value=@dta.ProductName.ToString()>@dta.ProductName.ToString()</FluentOption>
-                            }
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
+                            </FluentGridItem>
+                        </FluentGrid>
 
-                        </FluentCombobox>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentCombobox Items=@stringOptionsProd
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedProductId"
+                                @bind-Value="@stringProduct" />
+                            </FluentGridItem>
+                        </FluentGrid>
+
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentCombobox Items=@stringOptionsLoc
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedLocationId"
+                                @bind-Value="@stringLocation" />
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=model.Price Placeholder="Cost">Cost</FluentNumberField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=model.Qty Placeholder="Qty">Qty</FluentNumberField>
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextArea @bind-Value="model.Description" Rows="6" Cols="40">Keterangan</FluentTextArea>
+
+                            </FluentGridItem>
+                        </FluentGrid>
+
                     </FluentGridItem>
-
                 </FluentGrid>
             </FluentStack>
             <br />
@@ -57,9 +103,20 @@
 @code {
     private bool IsLoading { get; set; } = false;
 
-    public InitialStockDto model { get; set; }
+    public TransactionDto model { get; set; }
+    List<Option<string>> stringOptionsProd = new();
+    string? stringProduct = "(Select Product)";
+    Option<string> selectedProductId = default!;
 
-    IQueryable<ProductListDto>? prods;
+    List<Option<string>> stringOptionsLoc = new();
+    string? stringLocation = "(Select Location)";
+    Option<string> selectedLocationId = default!;
+
+
+    IQueryable<ProductSkuListDto>? prods;
+
+    IQueryable<StoreDto>? locs;
+
 
     JustifyContent Justification = JustifyContent.FlexStart;
 
@@ -83,9 +140,42 @@
         {
             IsLoading = true;
 
-            // await Task.Delay(200);
 
-            prods = (await _productServices.GetProductNameListAsycn()).AsQueryable();
+            prods = (await _productSKUServices.GetProductSkuListAsycn()).AsQueryable();
+
+            stringOptionsProd.Add(new Option<string>
+                {
+                    Value = "0",
+                    Text = "(Select Product)",
+                    Selected = true // You can set this based on your logic
+                });
+            foreach (var item in prods)
+            {
+                stringOptionsProd.Add(new Option<string>
+                    {
+                        Value = item.SkuId.ToString(), // Assuming CategoryId is an integer
+                        Text = item.SKU,
+                        Selected = false // You can set this based on your logic
+                    });
+            }
+
+            locs = (await _storeServices.GetStoreListAsycn()).AsQueryable();
+
+            stringOptionsLoc.Add(new Option<string>
+                {
+                    Value = "0",
+                    Text = "(Select Location)",
+                    Selected = true // You can set this based on your logic
+                });
+            foreach (var item in locs)
+            {
+                stringOptionsLoc.Add(new Option<string>
+                    {
+                        Value = item.StoreId.ToString(), // Assuming CategoryId is an integer
+                        Text = item.StoreName,
+                        Selected = false // You can set this based on your logic
+                    });
+            }
 
             init();
 
@@ -100,14 +190,68 @@
 
     private async void init()
     {
-        model = new InitialStockDto();
-    
+        model = new TransactionDto();
+
+        model.TransactionType = "I";
+        model.TransactionDate = DateTime.Today;
+        model.Description = "Initial stock";
+        model.CreatedBy = "Admin";
+        model.CreatedAt = DateTime.Today;
 
     }
 
     private async void OnValidSubmit()
     {
+        if (selectedProductId.Text == "(Select Product)" || selectedProductId.Text == null)
+        {
+            _dialogService.ShowInfo("Pilih Product", "Save");
+            return;
+        }
+        if (selectedLocationId.Text == "(Select Location)" || selectedLocationId.Text == null)
+        {
+            _dialogService.ShowInfo("Pilih Location", "Save");
+            return;
+        }
 
+        try
+        {
+            IsLoading = true;
+            TransactionDto a = new TransactionDto()
+                {
+                    TransactionDate = model.TransactionDate,
+                    SkuId = Convert.ToInt32(selectedProductId?.Value),
+                    StoreId = Convert.ToInt32(selectedLocationId?.Value),
+                    Price = model.Price,
+                    Qty = model.Qty,
+                    CreatedAt = model.CreatedAt,
+                    CreatedBy = model.CreatedBy,
+                    Description = model.Description
+                };
+            ServiceResponseDTO<bool> result = new();
+            result = await _initStockServices.CreateAsync(a);
+            IsLoading = false;
+            // berikan pesan
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Save");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Save");
+            }
+
+            result = new();
+            init();
+            StateHasChanged();
+
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
     }
 
 }

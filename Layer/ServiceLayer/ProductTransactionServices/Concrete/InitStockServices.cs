@@ -1,23 +1,22 @@
 ﻿using DataLayer.Context;
+using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
 using ServiceLayer.Model;
-using ServiceLayer.ProductService;
 using ServiceLayer.ProductService.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ServiceLayer.ProductStockServices;
+using ServiceLayer.ProductStockServices.Concrete;
 
 namespace ServiceLayer.ProductTransactionServices.Concrete
 {
     public class InitStockServices
     {
         private readonly StockContext _context;
+        private readonly StockServices _stockServices;
 
-        public InitStockServices(StockContext context)
+        public InitStockServices(StockContext context, StockServices StockServices)
         {
             _context = context;
+            _stockServices = StockServices;
         }
 
         /// <summary>
@@ -51,9 +50,25 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
             }
         }
 
-        public async Task<ServiceResponseDTO<bool>> CreateAsync(InitialStockDto objDTO)
+        /// <summary>
+        /// Kalau sudah ada transaksi, tidak boleh membuatnya lagi.
+        /// </summary>
+        /// <param name="objDTO"></param>
+        /// <returns></returns>
+        public async Task<ServiceResponseDTO<bool>> CreateAsync(TransactionDto objDTO)
         {
             ServiceResponseDTO<bool> result = new();
+
+            var tran = await _context.ProductTransactions.FirstOrDefaultAsync(u => u.SkuId == objDTO.SkuId && u.StoreId == objDTO.StoreId);
+            if (tran != null)
+            {
+                result.Success = false;
+                result.Message = "Data sudah ada";
+                return result;
+            }
+
+
+
             int Id = await GetIDAsync();
 
             if (Id == -1)
@@ -67,25 +82,43 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
 
             try
             {
-                var ItemToAdd = new InitialStockDto
+                var ItemToAdd = new ProductTransaction
                 {
                     TransactionId = Id,
-                    TransactionDate = objDTO.TransactionDate,
-                    ProductId = objDTO.ProductId,
+                    TransactionDate = objDTO.TransactionDate ?? DateTime.Now, // Converting from non Nullable to nullable . if null assgin to datetime.Now
+                    TransactionType = "I",
+                    SkuId = objDTO.SkuId,
                     StoreId = objDTO.StoreId,
                     Price = objDTO.Price,
-                    Qty = objDTO.Qty
-
+                    Qty = objDTO.Qty,
+                    CreatedAt = objDTO.CreatedAt,
+                    CreatedBy = objDTO.CreatedBy,
+                    Description = objDTO.Description,
+                    IsPosted = true
                 };
                 _context.Add(ItemToAdd);
                 var affectedRows = await _context.SaveChangesAsync();
 
                 if (affectedRows > 0)
                 {
+                    // Add stock
+                    var StockToAdd = new StockDto
+                    {
+                        StoreId = objDTO.StoreId,
+                        SkuId = objDTO.SkuId,
+                        qty = objDTO.Qty
+                    };
 
-                    result.Success = true;
-                    result.Message = "Data disimpan";
+                    var flg = await _stockServices.CreateAsync(StockToAdd);
+
+                 
+
+                    result.Success = flg.Success ;
+                    result.Message = flg.Success ? "Data Disimpan" : "Data Belum Disimpan";
                     return result;
+
+
+
                 }
                 else
                 {

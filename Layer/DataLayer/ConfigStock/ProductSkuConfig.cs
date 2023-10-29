@@ -26,6 +26,11 @@ namespace DataLayer.ConfigStock
 
             modelBuilder.Property(b => b.ProductId).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.Price).IsRequired(true).HasColumnType("Decimal(18,2)");
+
+            //one to many relation between product and Sku. Satu category bisa di banyak product 
+            modelBuilder
+               .HasOne(b => b.Product)
+               .WithMany(b => b.ProductSkus).HasForeignKey(b => b.ProductId);
         }
     }
 }

@@ -234,5 +234,24 @@ namespace ServiceLayer.ProductService.Concrete
 
         }
 
+        public async Task<IEnumerable<ProductSkuListDto>?> GetProductSkuListAsycn()
+        {
+            try
+            {
+                var query = (from cat in _context.ProductSkus
+                             select new ProductSkuListDto
+                             {
+                                 SkuId = cat.SkuId,
+                                 SKU = cat.SKU
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return null;
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace DataLayer.ConfigStock
 
 
             modelBuilder.Property(b => b.TransactionDate).IsRequired().HasColumnType("DateTime");
-            modelBuilder.Property(b => b.ProductId).IsRequired().HasColumnType("int");
+            modelBuilder.Property(b => b.SkuId).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.StoreIdFrom).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.StoreIdTo).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.Qty).IsRequired().HasColumnType("Decimal(18,2)");
@@ -29,8 +29,8 @@ namespace DataLayer.ConfigStock
 
             //one to many relation between product and product Transfer. Satu produk bisa banyak transaksi
             modelBuilder
-               .HasOne(b => b.Product)
-               .WithMany(b => b.ProductTransfers).HasForeignKey(b => b.ProductId);
+               .HasOne(b => b.ProductSku)
+               .WithMany(b => b.ProductTransfers).HasForeignKey(b => b.SkuId);
 
        
 
