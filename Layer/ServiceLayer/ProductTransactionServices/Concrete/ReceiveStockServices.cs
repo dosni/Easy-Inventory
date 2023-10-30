@@ -8,12 +8,12 @@ using ServiceLayer.ProductStockServices.Concrete;
 
 namespace ServiceLayer.ProductTransactionServices.Concrete
 {
-    public class InitStockServices
+    public class ReceiveStockServices
     {
         private readonly StockContext _context;
         private readonly StockServices _stockServices;
 
-        public InitStockServices(StockContext context, StockServices StockServices)
+        public ReceiveStockServices(StockContext context, StockServices StockServices)
         {
             _context = context;
             _stockServices = StockServices;
@@ -51,7 +51,8 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
         }
 
         /// <summary>
-        /// Kalau sudah ada transaksi, tidak boleh membuatnya lagi.
+        /// Kalau sudah ada transaksi stok awal, tidak boleh membuatnya lagi.
+        /// Tetapi kalau untuk pembelian bisa berulang ulang
         /// </summary>
         /// <param name="objDTO"></param>
         /// <returns></returns>
@@ -59,13 +60,17 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
         {
             ServiceResponseDTO<bool> result = new();
 
-            var tran = await _context.ProductTransactions.FirstOrDefaultAsync(u => u.SkuId == objDTO.SkuId && u.StoreId == objDTO.StoreId);
-            if (tran != null)
+            if (objDTO.TransactionType == "I")
             {
-                result.Success = false;
-                result.Message = "Data sudah ada";
-                return result;
+                var tran = await _context.ProductTransactions.FirstOrDefaultAsync(u => u.SkuId == objDTO.SkuId && u.StoreId == objDTO.StoreId);
+                if (tran != null)
+                {
+                    result.Success = false;
+                    result.Message = "Data sudah ada";
+                    return result;
+                }
             }
+
 
 
 
@@ -86,7 +91,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
                 {
                     TransactionId = Id,
                     TransactionDate = objDTO.TransactionDate ?? DateTime.Now, // Converting from non Nullable to nullable . if null assgin to datetime.Now
-                    TransactionType = "I",
+                    TransactionType = objDTO.TransactionType,
                     SkuId = objDTO.SkuId,
                     StoreId = objDTO.StoreId,
                     Price = objDTO.Price,
@@ -111,9 +116,9 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
 
                     var flg = await _stockServices.CreateAsync(StockToAdd);
 
-                 
 
-                    result.Success = flg.Success ;
+
+                    result.Success = flg.Success;
                     result.Message = flg.Success ? "Data Disimpan" : "Data Belum Disimpan";
                     return result;
 

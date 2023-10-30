@@ -3,10 +3,18 @@
 <br/>
 
 
-<FluentDatePicker Label="Meeting date" @bind-Value="@SelectedValue" ReadOnly />
- <FluentDatePicker AriaLabel="To" @bind-Value="@SelectedValue" />
- <p>Selected Date: @(SelectedValue?.ToString("yyyy-MM-dd"))</p>
+
+<label id="label1">Transaction Type</label>
+
+<FluentRadioGroup Required="true" aria-labelledby="label1" @bind-Value=transac Name="transacs" Orientation="Orientation.Horizontal">
+    <FluentRadio Value="@("Purchase")">Apples</FluentRadio>
+    <FluentRadio Value="@("Initial Stock")">Oranges</FluentRadio>
+ </FluentRadioGroup>
+
+
+<p>Your transaction : @transac!</p>
+
 @code
 {
-    private DateTime? SelectedValue = DateTime.Today.AddDays(-2);
+    string? transac = "Purchase";
 }

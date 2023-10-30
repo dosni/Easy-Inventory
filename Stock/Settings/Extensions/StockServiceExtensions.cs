@@ -17,7 +17,7 @@ namespace Stock.Settings.Extensions
             services.AddScoped<ProductSKUServices>();
             services.AddScoped<StoreServices>();
 
-            services.AddScoped<InitStockServices>();
+            services.AddScoped<ReceiveStockServices>();
             services.AddScoped<StockServices>();
         }
     }

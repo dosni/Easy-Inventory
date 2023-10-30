@@ -22,7 +22,7 @@ namespace ServiceLayer.ProductTransactionServices
         [Range(1.0, Double.MaxValue, ErrorMessage = "The field {0} must be greater or equal  {1}.")]
         public decimal Qty { get; set; }
 
-        [Range(0.0, Double.MaxValue, ErrorMessage = "The field {0} or Cost must be greater or equal {1}.")]
+        [Range(0.0, Double.MaxValue, ErrorMessage = "The field  Cost must be greater or equal {1}.")]
         public decimal Price { get; set; }
         public string Description { get; set; }
         public string CreatedBy { get; set; }
