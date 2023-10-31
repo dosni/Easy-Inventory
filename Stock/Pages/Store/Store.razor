@@ -1,70 +1,73 @@
-﻿@page "/Category"
+﻿@page "/store"
+
 @using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices;
-@using ServiceLayer.ProductCategoryServices.Concrete;
+@using ServiceLayer.StoreServices;
+@using ServiceLayer.StoreServices.Concrete;
 
-<PageTitle>Category</PageTitle>
+<PageTitle>StoreList</PageTitle>
 
-@inject CategoryServices _CategoryServices
-
+@inject StoreServices _storeServices
 
 <FluentHeader Style="background-color:none">
-    <h3>Categories</h3>
+    <h3>Locations</h3>
     <FluentSpacer />
     <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">Baru</FluentButton>
 </FluentHeader>
 
 @if (IsLoading == true)
 {
-    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column">
-        <FluentProgressRing></FluentProgressRing>
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
     </div>
 }
-
-@if (cats != null)
+@if (stores != null)
 {
-    <FluentDataGrid Items="@cats" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr"
+    <FluentDataGrid Items="@stores" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
                     style="height: 250px;overflow:auto;">
 
-        <PropertyColumn Property="@(c => c.CategoryId)" Title="Category Id" Align="Align.Start" />
-        <PropertyColumn Property="@(c => c.Category)" Title="Category" Align="Align.Start" />
-
+        <PropertyColumn Property="@(c => c.StoreId)" Title="Store Id" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.StoreName)" Title="Lokasi" Align="Align.Start" />
         <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.CategoryId,context.Category))" />
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.CategoryId,context.Category))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.StoreId,context.StoreName))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.StoreId,context.StoreName))" />
         </TemplateColumn>
+    
     </FluentDataGrid>
 }
+
 @code {
     private bool IsLoading { get; set; } = false;
-    IQueryable<CategoryDto>? cats;
+    public IQueryable<StoreDto>? stores;
     bool? canceled;
+    JustifyContent Justification = JustifyContent.FlexStart;
+
+    private void GetLink()
+    {
+        _navman.NavigateTo("/storeCreate");
+    }
 
     protected override async Task OnInitializedAsync()
     {
-
         base.OnInitialized();
         await Loading();
-
     }
     private async Task Loading()
     {
         IsLoading = true;
         await Task.Delay(200);
-        cats = (await _CategoryServices.GetEFCategoryListAsycn()).AsQueryable();
+        stores = (await _storeServices.GetStoreListAsycn()).AsQueryable();
         IsLoading = false;
-
     }
-
-    private async void Edit(int Id, string cat)
+    private async void Edit(int Id, string loc)
     {
-        _navman.NavigateTo($"categoryUpdate/{Id}/{cat}");
-
+        _navman.NavigateTo($"storeUpdate/{Id}/{loc}");
     }
+
     private async void Delete(int Id, string cat)
     {
         try
         {
+
             var dialog = await _dialogService.ShowConfirmationAsync("Are you sure you want to Delete?", "Ok", "No", "Delete Data");
             var dlgresult = await dialog.Result;
 
@@ -79,7 +82,7 @@
             IsLoading = true;
             await Task.Delay(200);
             ServiceResponseDTO<bool> result = new();
-            result = await _CategoryServices.DeleteCategoryAsync(Id);
+            result = await _storeServices.DeleteLocationAsync(Id);
             IsLoading = false;
             if (result.Success == true)
             {
@@ -101,8 +104,5 @@
         }
 
     }
-    private void GetLink()
-    {
-        _navman.NavigateTo("/categoryCreate");
-    }
+
 }

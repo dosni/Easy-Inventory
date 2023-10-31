@@ -2,19 +2,18 @@
 
 <br/>
 
+@inject IDialogService DialogService
 
-
-<label id="label1">Transaction Type</label>
-
-<FluentRadioGroup Required="true" aria-labelledby="label1" @bind-Value=transac Name="transacs" Orientation="Orientation.Horizontal">
-    <FluentRadio Value="@("Purchase")">Apples</FluentRadio>
-    <FluentRadio Value="@("Initial Stock")">Oranges</FluentRadio>
- </FluentRadioGroup>
-
-
-<p>Your transaction : @transac!</p>
+<FluentButton OnClick="@ShowConfirmationAsync" Appearance="Appearance.Accent">Confirmation</FluentButton>
 
 @code
 {
-    string? transac = "Purchase";
+   bool? canceled;
+
+    private async Task ShowConfirmationAsync()
+    {
+        var dialog = await DialogService.ShowConfirmationAsync("Do you have two eyes?", "Yup", "Nope", "Eyes on you");
+        var result = await dialog.Result;
+        canceled = result.Cancelled;
+    }
 }

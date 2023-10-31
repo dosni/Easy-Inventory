@@ -1,4 +1,4 @@
-﻿@page "/unitList"
+﻿@page "/unit"
 @using ServiceLayer.Model;
 @using ServiceLayer.ProductUnitServices.Concrete;
 @using ServiceLayer.ProductUnitServices;
@@ -7,6 +7,11 @@
 
 @inject UnitServices _unitServices
 
+<FluentHeader Style="background-color:none">
+    <h3>Units</h3>
+    <FluentSpacer />
+    <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">Baru</FluentButton>
+</FluentHeader>
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
@@ -21,12 +26,9 @@
         <PropertyColumn Property="@(c => c.UnitId)" Title="Unit Id" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.Unit)" Title="Unit" Align="Align.Start" />
 
-        <TemplateColumn Title="Edit">
-            <FluentButton Appearance="Appearance.Accent" @onclick="@(() => Edit(context.UnitId,context.Unit))">Edit</FluentButton>
-        </TemplateColumn>
-
-        <TemplateColumn Title="Delete">
-            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Icons.Regular.Size20.Delete())" @onclick="@(() => Delete(context.UnitId,context.Unit))">Delete</FluentButton>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.UnitId,context.Unit))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.UnitId,context.Unit))" />
         </TemplateColumn>
     </FluentDataGrid>
 
@@ -36,6 +38,7 @@
 @code {
     private bool IsLoading { get; set; } = false;
     IQueryable<UnitDto>? cats;
+    bool? canceled;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,7 +55,10 @@
         IsLoading = false;
 
     }
-
+    private void GetLink()
+    {
+        _navman.NavigateTo("/unitCreate");
+    }
     private async void Edit(int Id, string cat)
     {
         _navman.NavigateTo($"unitUpdate/{Id}/{cat}");
@@ -62,6 +68,18 @@
     {
         try
         {
+            var dialog = await _dialogService.ShowConfirmationAsync("Are you sure you want to Delete?", "Ok", "No", "Delete Data");
+            var dlgresult = await dialog.Result;
+
+            canceled = dlgresult.Cancelled;
+
+            if (canceled == null || (canceled == true))
+            {
+                _dialogService.ShowInfo("Delete cancelled", "Delete");
+                return;
+            }
+
+
             IsLoading = true;
             await Task.Delay(200);
             ServiceResponseDTO<bool> result = new();

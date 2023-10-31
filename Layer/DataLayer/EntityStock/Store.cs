@@ -12,7 +12,7 @@ namespace DataLayer.EntityStock
         public string StoreName { get; set; }
 
         public ICollection<Stock> Stocks { get; set; }
-        public ICollection<ProductTransaction> ProductTransactions { get; set; }
+        public ICollection<TransactionLine> LineTransactions { get; set; }
 
     }
 }

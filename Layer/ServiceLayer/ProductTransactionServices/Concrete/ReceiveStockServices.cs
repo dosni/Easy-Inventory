@@ -29,7 +29,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
 
             try
             {
-                var ocat = await _context.ProductTransactions
+                var ocat = await _context.Transactions
                    .OrderBy(pc => pc.TransactionId)
                    .LastOrDefaultAsync();
 
@@ -62,7 +62,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
 
             if (objDTO.TransactionType == "I")
             {
-                var tran = await _context.ProductTransactions.FirstOrDefaultAsync(u => u.SkuId == objDTO.SkuId && u.StoreId == objDTO.StoreId);
+                var tran = await _context.TransactionLines.FirstOrDefaultAsync(u => u.SkuId == objDTO.SkuId && u.StoreId == objDTO.StoreId);
                 if (tran != null)
                 {
                     result.Success = false;
@@ -87,15 +87,15 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
 
             try
             {
-                var ItemToAdd = new ProductTransaction
+                var ItemToAdd = new Transaction
                 {
                     TransactionId = Id,
                     TransactionDate = objDTO.TransactionDate ?? DateTime.Now, // Converting from non Nullable to nullable . if null assgin to datetime.Now
                     TransactionType = objDTO.TransactionType,
-                    SkuId = objDTO.SkuId,
-                    StoreId = objDTO.StoreId,
-                    Price = objDTO.Price,
-                    Qty = objDTO.Qty,
+                    //SkuId = objDTO.SkuId,
+                    //StoreId = objDTO.StoreId,
+                    //Price = objDTO.Price,
+                    //Qty = objDTO.Qty,
                     CreatedAt = objDTO.CreatedAt,
                     CreatedBy = objDTO.CreatedBy,
                     Description = objDTO.Description,

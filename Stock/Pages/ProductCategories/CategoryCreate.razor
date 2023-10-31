@@ -15,6 +15,8 @@
         <FluentProgress></FluentProgress>
     </div>
 }
+<FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="GoBack" />
+
 <div style="padding: 1.5rem;">
     <FluentLabel Typo="Typography.Header"> Buat Record Baru </FluentLabel>
     <br />
@@ -52,7 +54,10 @@
     JustifyContent Justification = JustifyContent.FlexStart;
 
 
-
+    private async Task GoBack()
+    {
+        await jsruntime.InvokeVoidAsync("history.back");
+    }
 
     protected override async Task OnInitializedAsync()
     {

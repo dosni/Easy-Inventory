@@ -1,67 +1,72 @@
-﻿@page "/Category"
+﻿@page "/product"
 @using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices;
-@using ServiceLayer.ProductCategoryServices.Concrete;
+@using ServiceLayer.ProductService;
+@using ServiceLayer.ProductService.Concrete;
 
-<PageTitle>Category</PageTitle>
+<PageTitle>ProductList</PageTitle>
 
-@inject CategoryServices _CategoryServices
-
+@inject ProductServices _productServices
 
 <FluentHeader Style="background-color:none">
-    <h3>Categories</h3>
+    <h3>Products</h3>
     <FluentSpacer />
     <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">Baru</FluentButton>
 </FluentHeader>
 
+
 @if (IsLoading == true)
 {
-    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column">
-        <FluentProgressRing></FluentProgressRing>
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
     </div>
 }
-
-@if (cats != null)
+@if (products != null)
 {
-    <FluentDataGrid Items="@cats" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr"
+    <FluentDataGrid Items="@products" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
                     style="height: 250px;overflow:auto;">
 
-        <PropertyColumn Property="@(c => c.CategoryId)" Title="Category Id" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.Category)" Title="Category" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.ProductDescription)" Title="Keterangan" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" />
 
         <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.CategoryId,context.Category))" />
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.CategoryId,context.Category))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.ProductId))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.ProductId,context.SKU))" />
         </TemplateColumn>
+
     </FluentDataGrid>
 }
+
 @code {
     private bool IsLoading { get; set; } = false;
-    IQueryable<CategoryDto>? cats;
+    IQueryable<ProductDto>? products;
     bool? canceled;
+    JustifyContent Justification = JustifyContent.FlexStart;
 
+    private void GetLink()
+    {
+        _navman.NavigateTo("/productCreate");
+    }
     protected override async Task OnInitializedAsync()
     {
-
         base.OnInitialized();
         await Loading();
-
     }
     private async Task Loading()
     {
         IsLoading = true;
         await Task.Delay(200);
-        cats = (await _CategoryServices.GetEFCategoryListAsycn()).AsQueryable();
+        products = (await _productServices.GetProductListAsycn()).AsQueryable();
         IsLoading = false;
-
     }
 
-    private async void Edit(int Id, string cat)
+    private async void Edit(int Id)
     {
-        _navman.NavigateTo($"categoryUpdate/{Id}/{cat}");
-
+        _navman.NavigateTo($"productUpdate/{Id}");
     }
-    private async void Delete(int Id, string cat)
+
+    private async void Delete(int Id, string sku)
     {
         try
         {
@@ -79,8 +84,10 @@
             IsLoading = true;
             await Task.Delay(200);
             ServiceResponseDTO<bool> result = new();
-            result = await _CategoryServices.DeleteCategoryAsync(Id);
+            result = await _productServices.DeleteProductAsync(Id, sku);
+
             IsLoading = false;
+
             if (result.Success == true)
             {
                 _dialogService.ShowInfo(result.Message, "Delete");
@@ -100,9 +107,5 @@
             return;
         }
 
-    }
-    private void GetLink()
-    {
-        _navman.NavigateTo("/categoryCreate");
     }
 }
