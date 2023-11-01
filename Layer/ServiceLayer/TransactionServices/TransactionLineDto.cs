@@ -8,7 +8,9 @@ namespace ServiceLayer.TransactionServices
 {
     public class TransactionLineDto
     {
+        public int LineId { get; set; }
         public string ProductName { get; set; }
+        public string TransactionType { get; set; }
         public string SKU { get; set; }
         public int SkuId { get; set; }
         public int StoreId { get; set; }

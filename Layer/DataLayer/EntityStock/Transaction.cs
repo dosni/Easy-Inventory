@@ -9,7 +9,6 @@ namespace DataLayer.EntityStock
     public class Transaction
     {
         public int TransactionId { get; set; }
-        public string TransactionType { get; set; }
         public DateTime TransactionDate { get; set; }      
         public int? ContactId { get; set; }
         public string Description { get; set; }
@@ -17,8 +16,6 @@ namespace DataLayer.EntityStock
         public bool IsPosted { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        //public ProductSku ProductSku { get; set; }
-        //public Store Store { get; set; }
         public Contact Contact { get; set; }
         public ICollection<TransactionLine> LineTransactions { get; set; }
 

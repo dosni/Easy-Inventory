@@ -90,7 +90,25 @@ namespace ServiceLayer.ContactServices.Concrete
                 return result;
             }
         }
+        public async Task<IEnumerable<ContactDto>?> GetSupplierListAsycn()
+        {
+            try
+            {
+                var query = (from o in _context.Contacts where o.type == "S" 
+                             select new ContactDto
+                             {
+                                 ContactId = o.ContactId,
+                                 Name = o.Name
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
 
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public async Task<IEnumerable<ContactDto>?> GetContactListAsycn()
         {
             try

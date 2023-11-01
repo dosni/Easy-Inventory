@@ -181,7 +181,7 @@
     private async void OnValidSubmit()
     {
 
-        if (selectedCategoryId.Text == "(Select Category)" || selectedCategoryId.Text == null)
+        if (stringCategory == "(Select Category)")
         {
             _dialogService.ShowInfo("Pilih Category", "Save");
             return;
@@ -189,7 +189,7 @@
 
 
 
-        if (selectedUnitId.Text == "(Select Unit)" || selectedUnitId.Text == null)
+        if (stringUnit == "(Select Unit)")
         {
             _dialogService.ShowInfo("Pilih Unit", "Save");
             return;

@@ -22,7 +22,6 @@ namespace DataLayer.ConfigStock
               .ValueGeneratedNever()
               .HasColumnType("int");
 
-            modelBuilder.Property(b => b.TransactionType).IsRequired().HasColumnType("char(1)");
             modelBuilder.Property(b => b.TransactionDate).IsRequired().HasColumnType("DateTime");
             modelBuilder.Property(b => b.ContactId).IsRequired(false).HasColumnType("int");
             modelBuilder.Property(b => b.Description).IsRequired().HasColumnType("varchar(2000)");

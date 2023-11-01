@@ -11,11 +11,10 @@ namespace ServiceLayer.TransactionServices
     public class TransactionDto
     {
         public int TransactionId { get; set; }
-        [Required(ErrorMessage = "Transaction Type is required")]
-        public string TransactionType { get; set; }
+      
         [Required(ErrorMessage = "Date is required")]
-
-        public DateTime TransactionDate { get; set; }
+        public string TransactionType { get; set; }
+        public DateTime? TransactionDate { get; set; }
         public int? ContactId { get; set; }
         public string Description { get; set; }
         public string CreatedBy { get; set; }

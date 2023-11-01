@@ -1,0 +1,46 @@
+﻿@page "/selectCombo"
+@using Common;
+
+<PageTitle>SelectEnum</PageTitle>
+
+<FluentGridItem xs="6">
+    <FluentCombobox Items=@stringOptionsType
+                    OptionText="@(i => i.Text)"
+                    OptionValue="@(i => i.Value)"
+                    OptionSelected="@(i => i.Selected)"
+    @bind-SelectedOption="@selectedTypeId"
+    @bind-Value="@stringType" />
+</FluentGridItem>
+
+<br />
+<br />
+<br />
+
+<br />
+<br />
+
+
+@code {
+    List<Option<string>> stringOptionsType = new();
+    string? stringType = "(Select Type)";
+
+    Option<string> selectedTypeId = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        stringOptionsType = new()
+        {
+            { new Option<string> { Value = "0", Text = "(Select Type)", Selected=true } },
+            { new Option<string> { Value = "10", Text = "Initial Stock" } },
+            { new Option<string> { Value = "20", Text = "Purchase"} },
+            { new Option<string> { Value = "30", Text = "Sales" } },
+            { new Option<string> { Value = "40", Text = "Stock Adjusment" } },
+            { new Option<string> { Value = "50", Text = "Transfer" } },
+            { new Option<string> { Value = "21", Text = "Purchase Return" } },
+            { new Option<string> { Value = "31", Text = "Sales Return" } }
+        };
+
+    }
+}

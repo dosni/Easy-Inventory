@@ -1,0 +1,13 @@
+﻿@page "/sales"
+@using ServiceLayer.TransactionServices;
+@using Common;
+
+<PageTitle>Sales</PageTitle>
+
+@code {
+    private bool IsLoading { get; set; } = false;
+    private bool showProduct = false;
+    public TransactionDto model { get; set; }
+
+    public string Type = ((int)TransactionType.Sales).ToString();
+}

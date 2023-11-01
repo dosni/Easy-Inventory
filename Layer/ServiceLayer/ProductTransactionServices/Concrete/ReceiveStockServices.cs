@@ -91,7 +91,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
                 {
                     TransactionId = Id,
                     TransactionDate = objDTO.TransactionDate ?? DateTime.Now, // Converting from non Nullable to nullable . if null assgin to datetime.Now
-                    TransactionType = objDTO.TransactionType,
+            
                     //SkuId = objDTO.SkuId,
                     //StoreId = objDTO.StoreId,
                     //Price = objDTO.Price,

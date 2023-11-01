@@ -1,4 +1,5 @@
 ﻿@page "/initialStock"
+@using Common;
 @using ServiceLayer.Model;
 @using ServiceLayer.ProductService;
 @using ServiceLayer.ProductService.Concrete;
@@ -12,11 +13,7 @@
 <PageTitle>InitStock</PageTitle>
 
 
-@inject StoreServices _storeServices
-
-@inject ReceiveStockServices _initStockServices
-@inject ProductSKUServices _productSKUServices
-@inject ProductServices _productServices
+@inject TransactionServices _initStockServices
 @inject TransactionLineServices _productDisplay
 
 
@@ -28,39 +25,44 @@
     </div>
 }
 
-@if (prods != null)
+@if (productDisplays != null)
 {
+    
     <div style="padding: 1.5rem;">
-        <FluentLabel Typo="Typography.Header"> Initial Stock </FluentLabel>
-        <br />
+    <FluentLabel Typo="Typography.Header"> Initial Stock </FluentLabel>
+    <br />
 
-        <EditForm Model="@model" OnValidSubmit="@OnValidSubmit">
-            <DataAnnotationsValidator />
-            <FluentValidationSummary />
-            <FluentStack Orientation="Orientation.Vertical">
-                <FluentGrid Spacing="0">
-                    <FluentGridItem xs="12">
+    <EditForm Model="@model">
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentGrid Spacing="0">
+                <FluentGridItem xs="12">
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
+                        </FluentGridItem>
+                    </FluentGrid>
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextArea @bind-Value="model.Description" Rows="3" Cols="80">Keterangan</FluentTextArea>
+                        </FluentGridItem>
+                    </FluentGrid>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentStack>
 
-
-                        <FluentGrid>
-                            <FluentGridItem xs="6">
-                                <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
-                            </FluentGridItem>
-                        </FluentGrid>
-
-
-
-                    </FluentGridItem>
-                </FluentGrid>
-            </FluentStack>
-
-        </EditForm>
-        <br />
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
-            Add Product
-        </FluentButton>
-    </div>
+    </EditForm>
+    <br />
+    <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
+        Add Product
+    </FluentButton>
+</div>
 }
+
+
+
+
 @if (showProduct == false)
 {
 
@@ -84,51 +86,42 @@ else
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
 
 
-    <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
-                    style="height: 250px;overflow:auto;">
+        <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
+                        style="height: 250px;overflow:auto;">
 
-        <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
-        <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
-        <TemplateColumn Title="Qty">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
-        </TemplateColumn>
-        <TemplateColumn Title="Price">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
-        </TemplateColumn>
-        <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId,false))" />
-        </TemplateColumn>
+            <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
+            <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+            <TemplateColumn Title="Qty">
+                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
+            </TemplateColumn>
+            <TemplateColumn Title="Price">
+                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
+            </TemplateColumn>
+            <TemplateColumn Title="Actions">
+                <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
+            </TemplateColumn>
 
-    </FluentDataGrid>
-    <br />
+        </FluentDataGrid>
+        <br />
+   
+
+
 
 }
 <FluentGrid Spacing="3" Justify="@Justification">
     <FluentGridItem xs="12" sm="6">
-        <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+        <FluentButton Type="ButtonType.Button" Appearance="Appearance.Accent" OnClick="Save">Save</FluentButton>
     </FluentGridItem>
 
 </FluentGrid>
 @code {
     private bool IsLoading { get; set; } = false;
     private bool showProduct = false;
+    public TransactionDto model { get; set; }
+    
+    public string Type = ((int)TransactionType.InitialStock).ToString();
 
-
-
-    public ProductTransactionDto model { get; set; }
-
-    List<Option<string>> stringOptionsProd = new();
-    string? stringProduct = "(Select Product)";
-    Option<string> selectedProductId = default!;
-
-    List<Option<string>> stringOptionsLoc = new();
-    string? stringLocation = "(Select Location)";
-    Option<string> selectedLocationId = default!;
-
-
-    IQueryable<ProductSkuListDto>? prods;
     IQueryable<ProductDisplayDto>? productDisplays;
-    IQueryable<StoreDto>? locs;
 
 
     List<TransactionLineDto> productSelected = new List<TransactionLineDto>();
@@ -142,8 +135,11 @@ else
         try
         {
             base.OnInitialized();
-            await Loading();
+            IsLoading = true;
+            productDisplays = (await _productDisplay.GetProductListAsycn()).AsQueryable();
+            init();
 
+            IsLoading = false;
         }
         catch (Exception ex)
         {
@@ -174,7 +170,7 @@ else
             return;
         }
     }
-    private async void Add(int Id, bool flg)
+    private async void Add(int Id)
     {
 
         // Find the product with the specified Id in the productDisplays collection
@@ -196,6 +192,7 @@ else
                 }
 
             }
+            // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
 
             var a = new TransactionLineDto()
 
@@ -203,9 +200,11 @@ else
                     ProductName = selectedProduct.ProductName,
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
+                    StoreId = 1,
+                    TransactionType = ((int)Common.TransactionType.InitialStock).ToString(),
                     Qty = selectedProduct.Qty,
-                    Price = selectedProduct.Price,
-                    StoreId = 1
+                    Price = selectedProduct.Price
+
                 };
             productSelected.Add(a);
 
@@ -214,72 +213,19 @@ else
 
         productLines = productSelected.AsQueryable();
 
-        showProduct = flg;
 
         StateHasChanged();
 
 
     }
 
-    private async Task Loading()
-    {
-        try
-        {
-            IsLoading = true;
-            productDisplays = (await _productDisplay.GetProductListAsycn()).AsQueryable();
 
-            prods = (await _productSKUServices.GetProductSkuListAsycn()).AsQueryable();
-
-            stringOptionsProd.Add(new Option<string>
-                {
-                    Value = "0",
-                    Text = "(Select Product)",
-                    Selected = true // You can set this based on your logic
-                });
-            foreach (var item in prods)
-            {
-                stringOptionsProd.Add(new Option<string>
-                    {
-                        Value = item.SkuId.ToString(), // Assuming CategoryId is an integer
-                        Text = item.SKU,
-                        Selected = false // You can set this based on your logic
-                    });
-            }
-
-            locs = (await _storeServices.GetStoreListAsycn()).AsQueryable();
-
-            stringOptionsLoc.Add(new Option<string>
-                {
-                    Value = "0",
-                    Text = "(Select Location)",
-                    Selected = true // You can set this based on your logic
-                });
-            foreach (var item in locs)
-            {
-                stringOptionsLoc.Add(new Option<string>
-                    {
-                        Value = item.StoreId.ToString(), // Assuming CategoryId is an integer
-                        Text = item.StoreName,
-                        Selected = false // You can set this based on your logic
-                    });
-            }
-
-            init();
-
-            IsLoading = false;
-        }
-        catch (Exception ex)
-        {
-            string msg = ex.Message;
-        }
-
-    }
 
     private async void init()
     {
-        model = new ProductTransactionDto();
+        model = new TransactionDto();
 
-        model.TransactionType = "I";
+        model.TransactionType = Type;
         model.TransactionDate = DateTime.Today;
         model.Description = "Initial stock";
         model.CreatedBy = "Admin";
@@ -287,37 +233,31 @@ else
 
     }
 
-    private async void OnValidSubmit()
+    private async void Save()
     {
-        if (selectedProductId.Text == "(Select Product)" || selectedProductId.Text == null)
-        {
-            _dialogService.ShowInfo("Pilih Product", "Save");
-            return;
-        }
-        if (selectedLocationId.Text == "(Select Location)" || selectedLocationId.Text == null)
-        {
-            _dialogService.ShowInfo("Pilih Location", "Save");
-            return;
-        }
+
 
         try
         {
-
+            if (productSelected.Count == 0)
+            {
+                _dialogService.ShowInfo("Add product", "Select Products");
+                return;
+            }
             IsLoading = true;
-            ProductTransactionDto a = new ProductTransactionDto()
+            TransactionDto a = new TransactionDto()
                 {
                     TransactionDate = model.TransactionDate,
                     TransactionType = model.TransactionType,
-                    SkuId = Convert.ToInt32(selectedProductId?.Value),
-                    StoreId = Convert.ToInt32(selectedLocationId?.Value),
-                    Price = model.Price,
-                    Qty = model.Qty,
                     CreatedAt = model.CreatedAt,
                     CreatedBy = model.CreatedBy,
+                    IsPosted = true,
                     Description = model.Description
                 };
+
             ServiceResponseDTO<bool> result = new();
-            result = await _initStockServices.CreateAsync(a);
+            result = await _initStockServices.CreateAsync(a, productLines);
+
             IsLoading = false;
             // berikan pesan
 

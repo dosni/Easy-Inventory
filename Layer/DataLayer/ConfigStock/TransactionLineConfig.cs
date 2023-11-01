@@ -10,7 +10,7 @@ namespace DataLayer.ConfigStock
         public void Configure(EntityTypeBuilder<TransactionLine> modelBuilder)
         {
             modelBuilder.HasKey("LineId","TransactionId") ;
-
+            modelBuilder.Property(b => b.TransactionType).IsRequired().HasColumnType("char(2)");
             modelBuilder.Property(b => b.SkuId).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.StoreId).IsRequired().HasColumnType("int");
             modelBuilder.Property(b => b.Qty).IsRequired().HasColumnType("Decimal(18,2)");

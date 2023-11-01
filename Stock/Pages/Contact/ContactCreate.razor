@@ -109,7 +109,7 @@
 
     private async void OnValidSubmit()
     {
-        if (selectedTypeId.Text == "(Select Type)" || selectedTypeId.Text == null)
+        if (stringType == "(Select Type)")
         {
             _dialogService.ShowInfo("Select Type", "Save");
             return;
@@ -149,6 +149,8 @@
 
             result = new();
             init();
+            selectedTypeId.Text = null;
+
             StateHasChanged();
         }
         catch (Exception ex)
