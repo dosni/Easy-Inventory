@@ -11,7 +11,7 @@
 <FluentHeader Style="background-color:none">
     <h3>Locations</h3>
     <FluentSpacer />
-    <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">Baru</FluentButton>
+    <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">New</FluentButton>
 </FluentHeader>
 
 @if (IsLoading == true)
@@ -25,8 +25,8 @@
     <FluentDataGrid Items="@stores" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
                     style="height: 250px;overflow:auto;">
 
-        <PropertyColumn Property="@(c => c.StoreId)" Title="Store Id" Align="Align.Start" />
-        <PropertyColumn Property="@(c => c.StoreName)" Title="Lokasi" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.StoreId)" Title="Store Id" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.StoreName)" Title="Lokasi" Align="Align.Start" Sortable="true" />
         <TemplateColumn Title="Actions">
             <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.StoreId,context.StoreName))" />
             <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.StoreId,context.StoreName))" />

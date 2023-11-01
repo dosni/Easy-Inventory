@@ -18,6 +18,7 @@ namespace ServiceLayer.ProductService
 
 
         public string Category { get; set; }
+
         [Required(ErrorMessage = "Product Category is required")]
         public int CategoryId { get; set; }
 
@@ -27,6 +28,7 @@ namespace ServiceLayer.ProductService
         [Required(ErrorMessage = "Product Unit is required")]
         public int UnitId { get; set; }
 
+        public int SkuId { get; set; }
         [Required(ErrorMessage = "Product SKU is required")]
         public string SKU { get; set; }
         public decimal Price { get; set; } = 0;

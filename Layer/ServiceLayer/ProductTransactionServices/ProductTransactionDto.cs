@@ -2,13 +2,14 @@
 
 namespace ServiceLayer.ProductTransactionServices
 {
-    public class TransactionDto
+    public class ProductTransactionDto
     {
 
         public int TransactionId { get; set; }
         public string TransactionType { get; set; } // 1=I 2=A 3. R 4. D
         public DateTime? TransactionDate { get; set; }
         [Required(ErrorMessage = "Product Name is required")]
+
         //public int ProductId { get; set; }
 
         public int SkuId { get; set; }

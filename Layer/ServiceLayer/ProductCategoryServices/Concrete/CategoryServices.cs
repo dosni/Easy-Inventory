@@ -121,37 +121,24 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
                     cat.Category = objDTO.Category;
 
                     var affectedRows = await _context.SaveChangesAsync();
-                    if (affectedRows > 0)
-                    {
-                        // The operation was successful, and data was saved to the database.
-                        // You can put your success handling code here.
+                    result.Success = affectedRows > 0;
+                    result.Message = result.Success ? "Data is saved" : "Data is not saved";
+                    return result;
 
-                        result.Success = true;
-                        result.Message = "Data disimpan";
-                        return result;
-                    }
-                    else
-                    {
-                        // The operation was not successful, and no data was saved to the database.
-                        // You can handle the failure here, possibly by throwing an exception or logging an error.
-
-                        result.Success = false;
-                        result.Message = "Data belum disimpan";
-                        return result;
-                    }
+                  
 
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Data tidak disimpan";
+                    result.Message = "Data is not saved";
                     return result;
                 }
             }
             catch (Exception ex)
             {
                 result.Success = false;
-                result.Message = "Data tidak disimpan";
+                result.Message = "Data is not saved";
                 return result;
             }
         }
@@ -163,8 +150,8 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
 
             if (custId == -1)
             {
-                result.Message = "Tidak bisa simpan data";
                 result.Success = false;
+                result.Message = "Data is not saved";
                 return result;
             }
 
@@ -180,24 +167,12 @@ namespace ServiceLayer.ProductCategoryServices.Concrete
                 _context.Add(itemToAdd);
 
                 var affectedRows = await _context.SaveChangesAsync();
-                if (affectedRows > 0)
-                {
-                    // The operation was successful, and data was saved to the database.
-                    // You can put your success handling code here.
+            
+                result.Success = affectedRows > 0;
+                result.Message = result.Success ? "Data is saved" : "Data is not saved";
+                return result;
 
-                    result.Success = true;
-                    result.Message = "Data disimpan";
-                    return result;
-                }
-                else
-                {
-                    // The operation was not successful, and no data was saved to the database.
-                    // You can handle the failure here, possibly by throwing an exception or logging an error.
-
-                    result.Success = false;
-                    result.Message = "Data belum disimpan";
-                    return result;
-                }
+         
 
             }
             catch (Exception ex)

@@ -56,7 +56,7 @@ namespace ServiceLayer.ProductTransactionServices.Concrete
         /// </summary>
         /// <param name="objDTO"></param>
         /// <returns></returns>
-        public async Task<ServiceResponseDTO<bool>> CreateAsync(TransactionDto objDTO)
+        public async Task<ServiceResponseDTO<bool>> CreateAsync(ProductTransactionDto objDTO)
         {
             ServiceResponseDTO<bool> result = new();
 

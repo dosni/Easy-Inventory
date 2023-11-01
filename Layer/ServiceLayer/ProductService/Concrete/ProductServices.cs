@@ -71,7 +71,7 @@ namespace ServiceLayer.ProductService.Concrete
                 }
             }
         }
-     
+
         public ProductDto? GetProduct(int productId)
         {
             try
@@ -88,6 +88,7 @@ namespace ServiceLayer.ProductService.Concrete
                                  Unit = cat.ProductUnit.Unit,
                                  ProductName = cat.ProductName,
                                  ProductDescription = cat.ProductDescription,
+                                 SkuId = cat.ProductSkus.FirstOrDefault().SkuId,
                                  SKU = cat.ProductSkus.FirstOrDefault().SKU,
                                  Price = cat.ProductSkus.FirstOrDefault().Price
                              });
@@ -143,26 +144,16 @@ namespace ServiceLayer.ProductService.Concrete
                     };
 
                     var flg = await _productSkuServices.CreateAsync(ItemSkuToAdd);
+                    result.Success = flg.Success;
+                    result.Message = flg.Success ? "Data is saved" : "Data is not saved";
+                    return result;
 
-                    if (flg.Success == true)
-                    {
-                        result.Success = true;
-                        result.Message = "Data disimpan";
-                        return result;
-                    }
-                    else
-                    {
-                        // hapus productID juga
-                        result.Success = false;
-                        result.Message = "Data belum disimpan";
-                        return result;
-                    }
 
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Data belum disimpan";
+                    result.Message = "Data is not saved";
                     return result;
                 }
             }
@@ -174,7 +165,7 @@ namespace ServiceLayer.ProductService.Concrete
                 return result;
             }
 
-}
+        }
 
         public async Task<IEnumerable<ProductListDto>?> GetProductNameListAsycn()
         {
@@ -196,132 +187,116 @@ namespace ServiceLayer.ProductService.Concrete
             }
         }
 
-public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
-{
-    try
-    {
-        var query = (from cat in _context.Products
-                     select new ProductDto
-                     {
-
-                         ProductId = cat.ProductId,
-                         CategoryId = cat.CategoryId,
-                         Category = cat.ProductCategory.Category,
-                         ProductName = cat.ProductName,
-                         ProductDescription = cat.ProductDescription,
-                         SKU = cat.ProductSkus.FirstOrDefault().SKU,
-                         Price = cat.ProductSkus.FirstOrDefault().Price
-                     }); 
-        var data = await query.ToListAsync();
-        return data.AsQueryable();
-
-    }
-    catch (Exception ex)
-    {
-        return null;
-    }
-}
-
-
-
-public async Task<ServiceResponseDTO<bool>> DeleteProductAsync(int ProductId, string productSku)
-{
-    ServiceResponseDTO<bool> result = new();
-    try
-    {
-        result = await _productSkuServices.DeleteProductSKUAsync(ProductId, productSku);
-        if (result.Success == true)
+        public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
         {
-            var productToDelete = await _context.Products.FindAsync(ProductId);
-            if (productToDelete != null)
+            try
             {
-                // Step 2: Remove the entity from the context
-                _context.Products.Remove(productToDelete);
+                var query = (from cat in _context.Products
+                             select new ProductDto
+                             {
 
-                // Step 3: Save the changes to the database
+                                 ProductId = cat.ProductId,
+                                 CategoryId = cat.CategoryId,
+                                 Category = cat.ProductCategory.Category,
+                                 ProductName = cat.ProductName,
+                                 ProductDescription = cat.ProductDescription,
+                                 SKU = cat.ProductSkus.FirstOrDefault().SKU,
+                                 Price = cat.ProductSkus.FirstOrDefault().Price
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
 
-                var affectedRows = await _context.SaveChangesAsync();
-                if (affectedRows > 0)
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+
+        public async Task<ServiceResponseDTO<bool>> DeleteAsync(int ProductId, string productSku)
+        {
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                result = await _productSkuServices.DeleteProductSKUAsync(ProductId, productSku);
+                if (result.Success == true)
+                {
+                    var productToDelete = await _context.Products.FindAsync(ProductId);
+                    if (productToDelete != null)
+                    {
+                        // Step 2: Remove the entity from the context
+                        _context.Products.Remove(productToDelete);
+
+                        // Step 3: Save the changes to the database
+
+                        var affectedRows = await _context.SaveChangesAsync();
+                        result.Success = affectedRows > 0;
+                        result.Message = result.Success ? "Data is deleted" : "Data is not deleted";
+                        return result;
+
+                    }
+                    else
+                    {
+                        result.Success = false;
+                        result.Message = "Data tidak bisa dihapus";
+                        return result;
+                    }
+                }
+                else
                 {
                     result.Success = true;
                     result.Message = "Data dihapus";
                     return result;
                 }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+
+
+        public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO)
+        {
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                var prod = await _context.Products.FirstOrDefaultAsync(u => u.ProductId == objDTO.ProductId);
+
+                if (prod != null)
+                {
+                    prod.ProductName = objDTO.ProductName;
+                    prod.CategoryId = objDTO.CategoryId;
+                    prod.UnitId = objDTO.UnitId;
+                    prod.ProductDescription = objDTO.ProductDescription;
+
+                    var affectedRows = await _context.SaveChangesAsync();
+                    var flg = await _productSkuServices.UpdateAsync(objDTO.SkuId, objDTO.SKU, objDTO.Price);
+
+                    result.Success = affectedRows > 0;
+                    result.Message = result.Success ? "Product is changed. " + flg.Message : "Product is not changed. " + flg.Message;
+                    return result;
+
+                 
+                }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Data tidak dihapus";
+                    result.Message = "Data is not saved";
                     return result;
                 }
-
             }
-            else
+            catch (Exception ex)
             {
                 result.Success = false;
-                result.Message = "Data tidak bisa dihapus";
+                result.Message = "Data is not saved";
                 return result;
             }
         }
-        else
-        {
-            result.Success = true;
-            result.Message = "Data dihapus";
-            return result;
-        }
-    }
-    catch (Exception ex)
-    {
-        result.Success = false;
-        result.Message = ex.Message;
-        return result;
-    }
-}
-
-
-public async Task<ServiceResponseDTO<bool>> UpdateAsync(ProductDto objDTO, string oldsku)
-{
-    ServiceResponseDTO<bool> result = new();
-    try
-    {
-        var prod = await _context.Products.FirstOrDefaultAsync(u => u.ProductId == objDTO.ProductId);
-
-        if (prod != null)
-        {
-            prod.ProductName = objDTO.ProductName;
-            prod.CategoryId = objDTO.CategoryId;
-            prod.UnitId = objDTO.UnitId;
-            prod.ProductDescription = objDTO.ProductDescription;
-
-            var affectedRows = await _context.SaveChangesAsync();
-            var flg = await _productSkuServices.UpdateAsync(objDTO.ProductId, objDTO.SKU, objDTO.Price, oldsku);
-
-            if (affectedRows > 0)
-            {
-                result.Success = true;
-                result.Message = "Produk berubah . " + flg.Message;
-                return result;
-            }
-            else
-            {
-                result.Success = false;
-                result.Message = "Produk tidak berubah." + flg.Message;  
-                return result;
-            }
-        }
-        else
-        {
-            result.Success = false;
-            result.Message = "Data tidak disimpan";
-            return result;
-        }
-    }
-    catch (Exception ex)
-    {
-        result.Success = false;
-        result.Message = "Data tidak disimpan";
-        return result;
-    }
-}
 
     }
 }

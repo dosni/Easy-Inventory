@@ -129,15 +129,7 @@
         cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
 
         units = (await _unitServices.GetUnitListAsycn()).AsQueryable();
-        init();
-        IsLoading = false;
 
-
-    }
-
-    private async void init()
-    {
-        model = new ProductDto();
         stringOptionsCat.Add(new Option<string>
             {
                 Value = "0",
@@ -173,6 +165,16 @@
                     Selected = false // You can set this based on your logic
                 });
         }
+        init();
+        IsLoading = false;
+
+
+    }
+
+    private async void init()
+    {
+        model = new ProductDto();
+  
 
     }
 

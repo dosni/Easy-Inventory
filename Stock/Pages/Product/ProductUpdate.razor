@@ -120,9 +120,9 @@
     JustifyContent Justification = JustifyContent.FlexStart;
 
     public ProductDto? model { get; set; } = new();
-    public string oldSku { get; set; } = string.Empty;
+  
 
-    IQueryable<ProductDto>? products;
+   // IQueryable<ProductDto>? products;
 
     protected override async Task OnInitializedAsync()
     {
@@ -131,14 +131,10 @@
             base.OnInitialized();
 
             IsLoading = true;
-            await Task.Delay(200);
             model = _productServices.GetProduct(Id);
 
 
-            // selectedCategoryId.Value = model?.CategoryId.ToString();
-
-            oldSku = model.SKU;
-
+           
             units = (await _unitServices.GetUnitListAsycn()).AsQueryable();
             cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
 
@@ -200,13 +196,14 @@
         try
         {
             IsLoading = true;
-            await Task.Delay(200);
+     
             ProductDto a = new ProductDto()
                 {
                     ProductId = Id,
                     ProductName = model.ProductName,
                     ProductDescription = model.ProductDescription,
                     SKU = model.SKU,
+                    SkuId = model.SkuId,
                     CategoryId = Convert.ToInt32(selectedCategoryId?.Value),//await _categoryServices.GetCategoryId(model.Category),
                     UnitId = Convert.ToInt32(selectedUnitId?.Value),//await _unitServices.GetUnitId(model.Unit),
                     Price = model.Price,
@@ -215,7 +212,7 @@
 
             ServiceResponseDTO<bool> result = new();
 
-            result = await _productServices.UpdateAsync(a, oldSku);
+            result = await _productServices.UpdateAsync(a);
 
             IsLoading = false;
 

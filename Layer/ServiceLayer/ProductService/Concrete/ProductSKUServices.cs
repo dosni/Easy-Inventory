@@ -120,7 +120,43 @@ namespace ServiceLayer.ProductService.Concrete
             }
 
         }
-        public async Task<ServiceResponseDTO<bool>> UpdateAsync(int ProductId, string productSku, decimal price, string oldsku)
+        public async Task<ServiceResponseDTO<bool>> UpdateAsync(int skuId, string productSku, decimal price)
+        {
+
+            ServiceResponseDTO<bool> result = new();
+            try
+            {
+                var prod = await _context.ProductSkus.FirstOrDefaultAsync(u => u.SkuId == skuId);
+
+                if (prod != null)
+                {
+                    prod.SKU = productSku;
+                    prod.Price = price;
+
+                    var affectedRows = await _context.SaveChangesAsync();
+                    result.Success = affectedRows > 0;
+                    result.Message = result.Success ? "Product sku is changed."  : "Product sku is not changed" ;
+                    return result;
+
+              
+
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = "Data tidak disimpan";
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+
+        public async Task<ServiceResponseDTO<bool>> UpdateAsync2(int ProductId, string productSku, decimal price, string oldsku)
         {
 
             ServiceResponseDTO<bool> result = new();
@@ -163,8 +199,6 @@ namespace ServiceLayer.ProductService.Concrete
                 return result;
             }
         }
-
-
 
         /// <summary>
         /// Hapus ProductSKU. Kalau productId dari ProductSKU setelah dihapus masih ada productId di tabel Products

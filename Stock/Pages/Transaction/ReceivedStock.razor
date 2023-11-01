@@ -112,7 +112,7 @@
     string? transac = "Purchase";
 
 
-    public TransactionDto model { get; set; }
+    public ProductTransactionDto model { get; set; }
     List<Option<string>> stringOptionsProd = new();
     string? stringProduct = "(Select Product)";
     Option<string> selectedProductId = default!;
@@ -199,7 +199,7 @@
 
     private async void init()
     {
-        model = new TransactionDto();
+        model = new ProductTransactionDto();
 
         model.TransactionType = "R";
         model.TransactionDate = DateTime.Today;
@@ -229,7 +229,7 @@
             model.TransactionType =( transac == "Purchase" ? "R" : "I" );
 
             IsLoading = true;
-            TransactionDto a = new TransactionDto()
+            ProductTransactionDto a = new ProductTransactionDto()
                 {
                     TransactionDate = model.TransactionDate,
                     TransactionType = model.TransactionType,

@@ -1,70 +1,72 @@
-﻿@page "/unit"
+﻿@page "/contact"
+@using ServiceLayer.ContactServices;
+@using ServiceLayer.ContactServices.Concrete;
 @using ServiceLayer.Model;
-@using ServiceLayer.ProductUnitServices.Concrete;
-@using ServiceLayer.ProductUnitServices;
 
-<PageTitle>UnitList</PageTitle>
+<PageTitle>Contact</PageTitle>
+@inject ContactServices _contactServices
 
-@inject UnitServices _unitServices
+
 
 <FluentHeader Style="background-color:none">
-    <h3>Units</h3>
+    <h3>Contacts</h3>
     <FluentSpacer />
     <FluentButton OnClick="@(() => GetLink())" Appearance="Appearance.Accent">New</FluentButton>
 </FluentHeader>
+
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
         <FluentProgress></FluentProgress>
     </div>
 }
-@if (cats != null)
+@if (contacts != null)
 {
-    <FluentDataGrid Items="@cats" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
+    <FluentDataGrid Items="@contacts" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
                     style="height: 250px;overflow:auto;">
 
-        <PropertyColumn Property="@(c => c.UnitId)" Title="Unit Id" Align="Align.Start" Sortable="true" />
-        <PropertyColumn Property="@(c => c.Unit)" Title="Unit" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.ContactId)" Title="Id" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.Name)" Title="Name" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.Phone)" Title="Phone" Align="Align.Start" />
+   
 
         <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.UnitId,context.Unit))" />
-            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Hapus" OnClick="@(() => Delete(context.UnitId,context.Unit))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Edit())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Edit" OnClick="@(() => Edit(context.ContactId))" />
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Delete" OnClick="@(() => Delete(context.ContactId))" />
         </TemplateColumn>
+
     </FluentDataGrid>
-
 }
-
-
 @code {
     private bool IsLoading { get; set; } = false;
-    IQueryable<UnitDto>? cats;
+
+    IQueryable<ContactDto>? contacts;
     bool? canceled;
 
+    JustifyContent Justification = JustifyContent.FlexStart;
+    private void GetLink()
+    {
+        _navman.NavigateTo("/contactCreate");
+    }
     protected override async Task OnInitializedAsync()
     {
-
         base.OnInitialized();
         await Loading();
-
     }
     private async Task Loading()
     {
         IsLoading = true;
-        await Task.Delay(200);
-        cats = (await _unitServices.GetUnitListAsycn()).AsQueryable();
+
+        contacts = (await _contactServices.GetContactListAsycn()).AsQueryable();
         IsLoading = false;
+    }
 
-    }
-    private void GetLink()
+    private async void Edit(int Id)
     {
-        _navman.NavigateTo("/unitCreate");
+        _navman.NavigateTo($"contactUpdate/{Id}");
     }
-    private async void Edit(int Id, string cat)
-    {
-        _navman.NavigateTo($"unitUpdate/{Id}/{cat}");
 
-    }
-    private async void Delete(int Id, string cat)
+    private async void Delete(int Id)
     {
         try
         {
@@ -79,12 +81,13 @@
                 return;
             }
 
-
             IsLoading = true;
-            await Task.Delay(200);
+            // await Task.Delay(200);
             ServiceResponseDTO<bool> result = new();
-            result = await _unitServices.DeleteUnitAsync(Id);
+            result = await _contactServices.DeleteAsync(Id);
+
             IsLoading = false;
+
             if (result.Success == true)
             {
                 _dialogService.ShowInfo(result.Message, "Delete");
@@ -103,6 +106,5 @@
             IsLoading = false;
             return;
         }
-
     }
 }
