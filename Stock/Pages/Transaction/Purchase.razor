@@ -2,6 +2,7 @@
 @using ServiceLayer.ContactServices;
 @using ServiceLayer.ContactServices.Concrete;
 @using ServiceLayer.Model;
+@using ServiceLayer.ProductService.Concrete;
 @using ServiceLayer.TransactionServices.Concrete;
 @using ServiceLayer.TransactionServices;
 @using Common;
@@ -9,8 +10,9 @@
 <PageTitle>Purchase</PageTitle>
 
 @inject TransactionServices _transactionServices
-@inject TransactionLineServices _productDisplay
+
 @inject ContactServices _contactServices
+@inject ProductServices _productDisplay
 
 
 @if (IsLoading == true)
@@ -156,7 +158,7 @@ else
         {
             base.OnInitialized();
             IsLoading = true;
-            productDisplays = (await _productDisplay.GetProductListAsycn()).AsQueryable();
+            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
             contacts = (await _contactServices.GetSupplierListAsycn()).AsQueryable();
 
             stringOptionsType = new()

@@ -14,8 +14,9 @@
 
 
 @inject TransactionServices _initStockServices
-@inject TransactionLineServices _productDisplay
-
+@* @inject TransactionLineServices _productDisplay
+ *@
+@inject ProductServices _productDisplay
 
 
 @if (IsLoading == true)
@@ -125,6 +126,7 @@ else
 
 
     List<TransactionLineDto> productSelected = new List<TransactionLineDto>();
+
     IQueryable<TransactionLineDto>? productLines;
 
 
@@ -136,7 +138,7 @@ else
         {
             base.OnInitialized();
             IsLoading = true;
-            productDisplays = (await _productDisplay.GetProductListAsycn()).AsQueryable();
+            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
             init();
 
             IsLoading = false;

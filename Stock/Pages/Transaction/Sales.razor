@@ -1,8 +1,15 @@
 ﻿@page "/sales"
+@using ServiceLayer.ContactServices.Concrete;
+@using ServiceLayer.ContactServices;
 @using ServiceLayer.TransactionServices;
 @using Common;
+@using ServiceLayer.TransactionServices.Concrete;
 
 <PageTitle>Sales</PageTitle>
+
+@inject TransactionServices _transactionServices
+@inject TransactionLineServices _productDisplay
+@inject ContactServices _contactServices
 
 @code {
     private bool IsLoading { get; set; } = false;
@@ -10,4 +17,22 @@
     public TransactionDto model { get; set; }
 
     public string Type = ((int)TransactionType.Sales).ToString();
+    IQueryable<ProductDisplayDto>? productDisplays;
+
+
+    List<TransactionLineDto> productSelected = new List<TransactionLineDto>();
+    IQueryable<TransactionLineDto>? productLines;
+
+    IQueryable<ContactDto>? contacts;
+
+    List<Option<string>> stringOptionsCustomer = new();
+    string? stringSupplier = "(Select Customer)";
+    Option<string> selectedSupplierId = default!;
+
+    List<Option<string>> stringOptionsType = new();
+    string? stringType = "Sales";
+    Option<string> selectedTypeId = default!;
+
+
+    JustifyContent Justification = JustifyContent.FlexStart;
 }

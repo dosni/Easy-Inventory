@@ -85,7 +85,6 @@ namespace ServiceLayer.TransactionServices.Concrete
                 return result;
             }
         }
-    
 
         public async Task<ServiceResponseDTO<bool>> CreateAsync(TransactionDto objDTO,IEnumerable<TransactionLineDto> linesDto)
         {

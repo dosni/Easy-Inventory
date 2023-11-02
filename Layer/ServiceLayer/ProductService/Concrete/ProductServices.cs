@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using ServiceLayer.Model;
 using ServiceLayer.StoreServices;
+using ServiceLayer.TransactionServices;
 using System.Data;
 
 namespace ServiceLayer.ProductService.Concrete
@@ -186,7 +187,28 @@ namespace ServiceLayer.ProductService.Concrete
                 return null;
             }
         }
+        public async Task<IEnumerable<ProductDisplayDto>?> GetProductSelectionAsycn()
+        {
+            try
+            {
+                var query = (from o in _context.Products
+                             select new ProductDisplayDto
+                             {
+                                 ProductName = o.ProductName,
+                                 SkuId = o.ProductSkus.FirstOrDefault().SkuId,
+                                 SKU = o.ProductSkus.FirstOrDefault().SKU,
+                                 Price = o.ProductSkus.FirstOrDefault().Price
+                             });
 
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
         {
             try
@@ -212,8 +234,6 @@ namespace ServiceLayer.ProductService.Concrete
                 return null;
             }
         }
-
-
 
         public async Task<ServiceResponseDTO<bool>> DeleteAsync(int ProductId, string productSku)
         {
