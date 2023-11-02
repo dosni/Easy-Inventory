@@ -18,7 +18,9 @@
  *@
 @inject ProductServices _productDisplay
 
-
+<FluentHeader Style="background-color:none">
+    <h3>Initial Stock</h3>
+ </FluentHeader>
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
@@ -30,9 +32,7 @@
 {
     
     <div style="padding: 1.5rem;">
-    <FluentLabel Typo="Typography.Header"> Initial Stock </FluentLabel>
-    <br />
-
+  
     <EditForm Model="@model">
         <DataAnnotationsValidator />
         <FluentValidationSummary />
@@ -55,9 +55,24 @@
 
     </EditForm>
     <br />
-    <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
-        Add Product
-    </FluentButton>
+     @*    <FluentGrid Spacing="3" Justify="@Justification">
+            <FluentGridItem xs="12" sm="6">
+                <FluentButton Type="ButtonType.Button" Appearance="Appearance.Accent" OnClick="Save">Save</FluentButton>
+            </FluentGridItem>
+
+        </FluentGrid> *@
+        <div>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
+                Add Product
+            </FluentButton>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" Color="Color.Neutral" Slot="start" Title="Save" OnClick="@(() => Save())">Save</FluentButton>
+        </div>
+   
+
+    @*     <FluentButton OnClick="@(() => Save())" Appearance="Appearance.Accent">New</FluentButton> *@
+
+       @*  <FluentButton Type="ButtonType.Button" Appearance="Appearance.Accent" OnClick="Save">Save</FluentButton> *@
 </div>
 }
 
@@ -68,7 +83,7 @@
 {
 
     <FluentDataGrid Items="@productLines" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
-                    style="height: 250px;overflow:auto;">
+                    style="height: 200px;overflow:auto;">
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" />
@@ -88,7 +103,7 @@ else
 
 
         <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
-                        style="height: 250px;overflow:auto;">
+                        style="height: 580px;overflow:auto;">
 
             <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
             <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
@@ -109,12 +124,7 @@ else
 
 
 }
-<FluentGrid Spacing="3" Justify="@Justification">
-    <FluentGridItem xs="12" sm="6">
-        <FluentButton Type="ButtonType.Button" Appearance="Appearance.Accent" OnClick="Save">Save</FluentButton>
-    </FluentGridItem>
 
-</FluentGrid>
 @code {
     private bool IsLoading { get; set; } = false;
     private bool showProduct = false;
