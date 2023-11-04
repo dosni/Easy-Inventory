@@ -72,8 +72,53 @@ namespace ServiceLayer.TransactionServices.Concrete
                 return result;
             }
         }
-      
-        public async Task<ServiceResponseDTO<bool>> AddPurchaseAsync(int transactionId, IEnumerable<TransactionLineDto> linesDto)
+        public async Task<ServiceResponseDTO<bool>> AddSalesAsync(int transactionId, IEnumerable<TransactionLineDto> linesDto)
+        {
+            ServiceResponseDTO<bool> result = new();
+
+            try
+            {
+
+
+                foreach (var data in linesDto)
+                {
+                    // Kalau transaksinya adalah penjualan barang maka jumlah negatif
+                    if (data.TransactionType == ((int)TransactionType.Sales).ToString())
+                    {
+                        data.Qty = -(data.Qty);
+                    }
+                    var ItemToAdd = new TransactionLine
+                    {
+                        TransactionId = transactionId,
+                        LineId = await GetIDAsync(),
+                        TransactionType = data.TransactionType,
+                        StoreId = data.StoreId,
+                        SkuId = data.SkuId,
+                        Qty = data.Qty,
+                        Price = data.Price
+                    };
+                    _context.Add(ItemToAdd);
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        await UpdateStock(data);
+                    }
+
+                }
+
+                result.Success = true;
+                result.Message = result.Success ? "Data saved" : "Data is not saved";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                result.Success = false;
+                return result;
+            }
+        }
+        
+            public async Task<ServiceResponseDTO<bool>> AddPurchasesAsync(int transactionId, IEnumerable<TransactionLineDto> linesDto)
         {
             ServiceResponseDTO<bool> result = new();
 

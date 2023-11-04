@@ -100,23 +100,24 @@ namespace ServiceLayer.TransactionServices.Concrete
             result=await AddAsync(objDTO);
 
             int type =(int) Convert.ToInt32(objDTO.TransactionType);
-          
+            
+            // case A OR B >>
+            // Case A
+            // Case B
+            // break;
+
             switch (type)
             {
                 case (int)TransactionType.InitialStock:
                     result =  await _lineServices.AddInitialStockAsync(Id, linesDto);
                     break;
-                case (int) TransactionType.Purchase:
-                    result = await _lineServices.AddPurchaseAsync(Id, linesDto);
-                    break;
+                case (int) TransactionType.Purchase :
                 case (int)TransactionType.Purchase_Return:
-                    // code block
+                    result = await _lineServices.AddPurchasesAsync(Id, linesDto);
                     break;
                 case (int)TransactionType.Sales:
-                    // code block
-                    break;
                 case (int)TransactionType.Sales_Return:
-                    // code block
+                    result = await _lineServices.AddSalesAsync(Id, linesDto);
                     break;
                 case (int)TransactionType.Adjustment:
                     // code block

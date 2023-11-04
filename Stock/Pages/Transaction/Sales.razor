@@ -71,9 +71,13 @@
 
         </EditForm>
         <br />
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
-            Add Product
-        </FluentButton>
+        <div>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
+                Add Product
+            </FluentButton>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" Color="Color.Neutral" Slot="start" Title="Save" OnClick="@(() => Save())">Save</FluentButton>
+        </div>
     </div>
 }
 @if (showProduct == false)
@@ -121,12 +125,7 @@ else
 
 
 }
-<FluentGrid Spacing="3" Justify="@Justification">
-    <FluentGridItem xs="12" sm="6">
-        <FluentButton Type="ButtonType.Button" Appearance="Appearance.Accent" OnClick="Save">Save</FluentButton>
-    </FluentGridItem>
 
-</FluentGrid>
 
 @code {
     private bool IsLoading { get; set; } = false;
@@ -151,8 +150,7 @@ else
     Option<string> selectedTypeId = default!;
 
 
-    JustifyContent Justification = JustifyContent.FlexStart;
-
+  
     protected override async Task OnInitializedAsync()
     {
         try
@@ -160,7 +158,7 @@ else
             base.OnInitialized();
             IsLoading = true;
             productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
-            contacts = (await _contactServices.GetSupplierListAsycn()).AsQueryable();
+            contacts = (await _contactServices.GetCustomerListAsycn()).AsQueryable();
 
             stringOptionsType = new()
                 {
@@ -259,7 +257,7 @@ else
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
                     StoreId = 1,
-                    TransactionType = selectedTypeId.Value,//((int)Common.TransactionType.InitialStock).ToString(),
+                    TransactionType = selectedTypeId.Value,
                     Qty = selectedProduct.Qty,
                     Price = selectedProduct.Price
 
