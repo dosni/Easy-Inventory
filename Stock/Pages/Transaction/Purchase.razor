@@ -113,7 +113,7 @@ else
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Actions">
             <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
@@ -121,10 +121,6 @@ else
 
     </FluentDataGrid>
     <br />
-
-
-
-
 }
 @code {
     private bool IsLoading { get; set; } = false;
@@ -160,13 +156,13 @@ else
         {
             stringTypeSelect = value;
 
-            if (stringTypeSelect == "Purchase")
+            if (stringTypeSelect == "Purchases")
             {
-                model.Description = "Purchase Product";
+                model.Description = "Purchases Product";
             }
             else
             {
-                model.Description = "Purchase Return Product";
+                model.Description = "Purchases Return Product";
             }
         }
     }
@@ -185,8 +181,8 @@ else
 
             stringOptionsType = new()
                 {
-                    { new Option<string> { Value = "20", Text = "Purchase", Selected = true} },
-                    { new Option<string> { Value = "25", Text = "Purchase Return", Selected = false} }
+                    { new Option<string> { Value = "20", Text = "Purchases", Selected = true} },
+                    { new Option<string> { Value = "25", Text = "Purchases Return", Selected = false} }
                  };
 
             stringOptionsSupplier.Add(new Option<string>
@@ -219,7 +215,7 @@ else
 
         model.TransactionType = ((int)TransactionType.Purchase).ToString(); 
         model.TransactionDate = DateTime.Today;
-        model.Description = "Purchase Product";
+        model.Description = "Purchases Product";
         model.CreatedBy = "Admin";
         model.CreatedAt = DateTime.Today;
 

@@ -112,7 +112,7 @@ else
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Actions">
             <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
@@ -146,11 +146,30 @@ else
     Option<string> selectedCustomerId = default!;
 
     List<Option<string>> stringOptionsType = new();
-    string? stringType = "Sales";
-    Option<string> selectedTypeId = default!;
-
-
   
+    Option<string> selectedTypeId = default!;
+    string? stringTypeSelect = "Sale";
+
+    string? stringType
+    {
+        get
+        {
+            return stringTypeSelect;
+        }
+        set
+        {
+            stringTypeSelect = value;
+
+            if (stringTypeSelect == "Sales")
+            {
+                model.Description = "Sales Product";
+            }
+            else
+            {
+                model.Description = "Sales Return Product";
+            }
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         try
@@ -200,6 +219,8 @@ else
         model.Description = "Sales Product";
         model.CreatedBy = "Admin";
         model.CreatedAt = DateTime.Today;
+
+        productSelected = new List<TransactionLineDto>();
     }
 
 
@@ -319,6 +340,8 @@ else
                 _dialogService.ShowWarning(result.Message, "Save");
             }
 
+            // remove product selected from user interface
+            productLines = null;
             result = new();
             init();
             StateHasChanged();
