@@ -197,6 +197,7 @@ namespace ServiceLayer.ProductService.Concrete
                                  ProductName = o.ProductName,
                                  SkuId = o.ProductSkus.FirstOrDefault().SkuId,
                                  SKU = o.ProductSkus.FirstOrDefault().SKU,
+                                 QtyAvaiable=o.ProductSkus.FirstOrDefault().Stocks.FirstOrDefault().qty,
                                  Price = o.ProductSkus.FirstOrDefault().Price
                              });
 

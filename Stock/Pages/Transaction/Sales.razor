@@ -103,13 +103,14 @@ else
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
 
 
-    <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
+    <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.3fr 0.2fr   0.2fr 0.2fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
         <TemplateColumn Title="Qty">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1" ></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="1"></FluentNumberField>
@@ -146,7 +147,7 @@ else
     Option<string> selectedCustomerId = default!;
 
     List<Option<string>> stringOptionsType = new();
-  
+
     Option<string> selectedTypeId = default!;
     string? stringTypeSelect = "Sale";
 
@@ -269,6 +270,19 @@ else
                 }
 
             }
+            // cek untuk penjualan apakah jumlah melebih stock. Untuk pengembalian penjualan tidak perlu di cek
+            if (selectedTypeId.Value == ((int)TransactionType.Sales).ToString())
+            {
+                if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
+                {
+                    _dialogService.ShowInfo("Qty is not available", "Qty Available");
+                    return;
+                }
+
+            }
+
+
+
             // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
 
             var a = new TransactionLineDto()
@@ -344,6 +358,7 @@ else
             productLines = null;
             result = new();
             init();
+            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
             StateHasChanged();
 
         }

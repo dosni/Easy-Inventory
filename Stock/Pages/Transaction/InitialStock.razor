@@ -20,7 +20,7 @@
 
 <FluentHeader Style="background-color:none">
     <h3>Initial Stock</h3>
- </FluentHeader>
+</FluentHeader>
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
@@ -30,32 +30,32 @@
 
 @if (productDisplays != null)
 {
-    
-    <div style="padding: 1.5rem;">
-  
-    <EditForm Model="@model">
-        <DataAnnotationsValidator />
-        <FluentValidationSummary />
-        <FluentStack Orientation="Orientation.Vertical">
-            <FluentGrid Spacing="0">
-                <FluentGridItem xs="12">
-                    <FluentGrid>
-                        <FluentGridItem xs="6">
-                            <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
-                        </FluentGridItem>
-                    </FluentGrid>
-                    <FluentGrid>
-                        <FluentGridItem xs="6">
-                            <FluentTextArea @bind-Value="model.Description" Rows="3" Cols="80">Keterangan</FluentTextArea>
-                        </FluentGridItem>
-                    </FluentGrid>
-                </FluentGridItem>
-            </FluentGrid>
-        </FluentStack>
 
-    </EditForm>
-    <br />
-  
+    <div style="padding: 1.5rem;">
+
+        <EditForm Model="@model">
+            <DataAnnotationsValidator />
+            <FluentValidationSummary />
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentGrid Spacing="0">
+                    <FluentGridItem xs="12">
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextArea @bind-Value="model.Description" Rows="3" Cols="80">Keterangan</FluentTextArea>
+                            </FluentGridItem>
+                        </FluentGrid>
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentStack>
+
+        </EditForm>
+        <br />
+
         <div>
             <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
                 Add Product
@@ -63,8 +63,8 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" Color="Color.Neutral" Slot="start" Title="Save" OnClick="@(() => Save())">Save</FluentButton>
         </div>
- 
-</div>
+
+    </div>
 }
 
 
@@ -93,24 +93,26 @@ else
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
 
 
-        <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
-                        style="height: 580px;overflow:auto;">
+    <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
+                    style="height: 580px;overflow:auto;">
 
-            <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
-            <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
-            <TemplateColumn Title="Qty">
-                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
-            </TemplateColumn>
-            <TemplateColumn Title="Price">
-                <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
-            </TemplateColumn>
-            <TemplateColumn Title="Actions">
-                <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
-            </TemplateColumn>
+        <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
 
-        </FluentDataGrid>
-        <br />
-   
+        <TemplateColumn Title="Qty">
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
+        </TemplateColumn>
+        <TemplateColumn Title="Price">
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
+        </TemplateColumn>
+
+    </FluentDataGrid>
+    <br />
+
 
 
 
@@ -120,7 +122,7 @@ else
     private bool IsLoading { get; set; } = false;
     private bool showProduct = false;
     public TransactionDto model { get; set; }
-    
+
     public string Type = ((int)TransactionType.InitialStock).ToString();
 
     IQueryable<ProductDisplayDto>? productDisplays;
@@ -195,6 +197,13 @@ else
                 }
 
             }
+            // cek untuk penjualan apakah jumlah melebih stock. Untuk pengembalian penjualan tidak perlu di cek
+            if (selectedProduct.QtyAvaiable != null)
+            {
+                _dialogService.ShowInfo("Stock has already have transactions", "Not Permitted");
+                return;
+            }
+
             // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
 
             var a = new TransactionLineDto()
@@ -275,6 +284,9 @@ else
 
             result = new();
             init();
+
+            // show update data for product display
+            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
             StateHasChanged();
 
         }
