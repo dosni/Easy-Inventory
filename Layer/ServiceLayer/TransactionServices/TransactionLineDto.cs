@@ -15,6 +15,7 @@ namespace ServiceLayer.TransactionServices
         public int SkuId { get; set; }
         public int StoreId { get; set; }
         public decimal Qty { get; set; }
+        public decimal? QtyAvaiable { get; set; }
         public decimal Price { get; set; }
     }
 }

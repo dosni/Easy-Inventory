@@ -113,7 +113,7 @@ else
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1" ></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="1"></FluentNumberField>
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Actions">
             <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
@@ -133,7 +133,7 @@ else
     private bool showProduct = false;
     public TransactionDto model { get; set; }
 
-    public string Type = ((int)TransactionType.Sales).ToString();
+
     IQueryable<ProductDisplayDto>? productDisplays;
 
 
@@ -215,7 +215,7 @@ else
     {
         model = new TransactionDto();
 
-        model.TransactionType = Type;
+        model.TransactionType = ((int)TransactionType.Sales).ToString(); 
         model.TransactionDate = DateTime.Today;
         model.Description = "Sales Product";
         model.CreatedBy = "Admin";
@@ -327,7 +327,9 @@ else
                 _dialogService.ShowInfo("Add product", "Select Products");
                 return;
             }
+
             IsLoading = true;
+            model.TransactionType = selectedTypeId.Value;
             TransactionDto a = new TransactionDto()
                 {
                     TransactionDate = model.TransactionDate,

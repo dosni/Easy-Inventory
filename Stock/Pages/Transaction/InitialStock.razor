@@ -14,8 +14,7 @@
 
 
 @inject TransactionServices _initStockServices
-@* @inject TransactionLineServices _productDisplay
- *@
+
 @inject ProductServices _productDisplay
 
 <FluentHeader Style="background-color:none">
@@ -122,8 +121,6 @@ else
     private bool IsLoading { get; set; } = false;
     private bool showProduct = false;
     public TransactionDto model { get; set; }
-
-    public string Type = ((int)TransactionType.InitialStock).ToString();
 
     IQueryable<ProductDisplayDto>? productDisplays;
 
@@ -237,7 +234,7 @@ else
     {
         model = new TransactionDto();
 
-        model.TransactionType = Type;
+        model.TransactionType = ((int)TransactionType.InitialStock).ToString(); 
         model.TransactionDate = DateTime.Today;
         model.Description = "Initial stock";
         model.CreatedBy = "Admin";
