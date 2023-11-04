@@ -120,7 +120,7 @@ namespace ServiceLayer.TransactionServices.Concrete
                     result = await _lineServices.AddSalesAsync(Id, linesDto);
                     break;
                 case (int)TransactionType.Adjustment:
-                    // code block
+                    result = await _lineServices.AddAdjusmentAsync(Id, linesDto);
                     break;
                 default:
                     // code block

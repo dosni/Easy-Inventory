@@ -72,6 +72,48 @@ namespace ServiceLayer.TransactionServices.Concrete
                 return result;
             }
         }
+
+        public async Task<ServiceResponseDTO<bool>> AddAdjusmentAsync(int transactionId, IEnumerable<TransactionLineDto> linesDto)
+        {
+            ServiceResponseDTO<bool> result = new();
+
+            try
+            {
+
+
+                foreach (var data in linesDto)
+                {
+                
+                    var ItemToAdd = new TransactionLine
+                    {
+                        TransactionId = transactionId,
+                        LineId = await GetIDAsync(),
+                        TransactionType = data.TransactionType,
+                        StoreId = data.StoreId,
+                        SkuId = data.SkuId,
+                        Qty = data.Qty,
+                        Price = 0
+                    };
+                    _context.Add(ItemToAdd);
+                    var affectedRows = await _context.SaveChangesAsync();
+                    if (affectedRows > 0)
+                    {
+                        await UpdateStock(data);
+                    }
+
+                }
+
+                result.Success = true;
+                result.Message = result.Success ? "Data saved" : "Data is not saved";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                result.Success = false;
+                return result;
+            }
+        }
         public async Task<ServiceResponseDTO<bool>> AddSalesAsync(int transactionId, IEnumerable<TransactionLineDto> linesDto)
         {
             ServiceResponseDTO<bool> result = new();

@@ -61,7 +61,7 @@
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
-        <PropertyColumn Property="@(c => c.Qty)" Title="Qty Counted" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.QtyCounted)" Title="Qty Counted" Align="Align.Start" />
         <TemplateColumn Title="Actions">
             <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Delete" OnClick="@(() => Delete(context.SkuId))" />
         </TemplateColumn>
@@ -185,20 +185,29 @@ else
                 }
 
             }
-            // cek untuk penjualan apakah jumlah melebih stock. Untuk pengembalian penjualan tidak perlu di cek
-            // if (selectedTypeId.Value == ((int)TransactionType.Sales).ToString())
-            // {
-            //     if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
-            //     {
-            //         _dialogService.ShowInfo("Qty is not available", "Qty Available");
-            //         return;
-            //     }
-
-            // }
-
 
 
             // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
+
+            // Cari jumlah transaksi = qtyCounted - qtyavaiailable
+            decimal qtydiff=0;
+            decimal qtyAvail = 0;
+
+            // change nullable to non nullable
+
+            if (selectedProduct.QtyAvaiable != null)
+            {
+                qtyAvail = selectedProduct.QtyAvaiable.Value;
+            }
+       
+            if (selectedProduct.QtyAvaiable != null)
+            {
+                qtydiff = selectedProduct.QtyCounted - qtyAvail;
+            }
+            else
+            {
+                qtydiff = selectedProduct.QtyCounted - 0;
+            }
 
             var a = new TransactionLineDto()
 
@@ -209,7 +218,8 @@ else
                     StoreId = 1,
                     TransactionType = model.TransactionType,
                     QtyAvaiable = selectedProduct.QtyAvaiable,
-                    Qty = selectedProduct.QtyCounted,
+                    QtyCounted = selectedProduct.QtyCounted,
+                    Qty = qtydiff,
                     Price = selectedProduct.Price
 
                 };
