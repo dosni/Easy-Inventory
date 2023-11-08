@@ -78,9 +78,14 @@
                 _dialogService.ShowInfo("Delete cancelled", "Delete");
                 return;
             }
+            if (Id == 1)
+            {
+                _dialogService.ShowInfo("Can not delete default", "Delete");
+                return;
+            }
 
             IsLoading = true;
-            await Task.Delay(200);
+           
             ServiceResponseDTO<bool> result = new();
             result = await _storeServices.DeleteLocationAsync(Id);
             IsLoading = false;

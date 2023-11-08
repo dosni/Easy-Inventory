@@ -44,7 +44,25 @@ namespace ServiceLayer.StoreServices.Concrete
             }
 
         }
+        /// <summary>
+        /// Count Number of records
+        /// </summary>
+        /// <returns></returns>
+        /// 
+        public async Task<int> CountAsync()
+        {
+            try
+            {
+                int count = await _context.Stores.CountAsync();
 
+                return count;
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                return 0;
+            }
+        }
 
         public async Task<ServiceResponseDTO<bool>> CreateAsync(StoreDto objDTO)
         {

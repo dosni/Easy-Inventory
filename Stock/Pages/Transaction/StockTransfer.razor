@@ -1,8 +1,432 @@
 ﻿@page "/stockTransfer"
+@using Common;
+@using ServiceLayer.ProductService.Concrete;
+@using ServiceLayer.StoreServices.Concrete;
+@using ServiceLayer.StoreServices;
+@using ServiceLayer.TransactionServices.Concrete;
+@using ServiceLayer.TransactionServices;
 
 
 <PageTitle>StockTransfer</PageTitle>
+@inject TransactionServices _transactionServices
+@inject ProductServices _productDisplay
+@inject StoreServices _storeServices
+
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+@if (productDisplays != null)
+{
+    <div style="padding: 1.5rem;">
+        <FluentLabel Typo="Typography.Header"> Stock Transfer </FluentLabel>
+        <br />
+        <EditForm Model="@model">
+            <DataAnnotationsValidator />
+            <FluentValidationSummary />
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentGrid Spacing="0">
+                    <FluentGridItem xs="12">
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentCombobox Items=@stringOptionsLocationFrom
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedLocationFromId"
+                                @bind-Value="@stringLocationFrom" />
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentCombobox Items=@stringOptionsLocationTo
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedLocationToId"
+                                @bind-Value="@stringLocationTo" />
+                            </FluentGridItem>
+                        </FluentGrid>
+                        <FluentGrid>
+                            <FluentGridItem xs="6">
+                                <FluentTextArea @bind-Value="model.Description" Rows="3" Cols="80">Keterangan</FluentTextArea>
+                            </FluentGridItem>
+                        </FluentGrid>
+
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentStack>
+        </EditForm>
+    </div>
+    <br />
+    <div>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Add())" Color="Color.Neutral" Slot="start" Title="Add Product" OnClick="@(() => Show(true))">
+            Add Product
+        </FluentButton>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" Color="Color.Neutral" Slot="start" Title="Save" OnClick="@(() => Save())">Save</FluentButton>
+    </div>
+
+}
+
+
+
+
+@if (showProduct == false)
+{
+
+    <FluentDataGrid Items="@productLines" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
+                    style="height: 250px;overflow:auto;">
+
+        <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" />
+        <PropertyColumn Property="@(c => c.Qty)" Title="Qty" Align="Align.Start" />
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Delete())" Appearance="Appearance.Filled" BackgroundColor="#ff531a" Color="var(--danger)" Title="Delete" OnClick="@(() => Delete(context.SkuId))" />
+        </TemplateColumn>
+
+    </FluentDataGrid>
+    <br />
+
+}
+else
+{
+    <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
+
+
+    <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.3fr 0.2fr   0.2fr 0.3fr"
+                    style="height: 580px;overflow:auto;">
+
+        <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock Source" Align="Align.Start" />
+        <TemplateColumn Title="Qty">
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Add())" BackgroundColor="var(--highlight-bg)" Color="var(--error)" Appearance="Appearance.Filled" Title="Add" OnClick="@(() => Add(context.SkuId))" />
+        </TemplateColumn>
+
+    </FluentDataGrid>
+    <br />
+
+
+
+
+}
 
 @code {
+    private bool IsLoading { get; set; } = false;
+    public TransactionDto model { get; set; }
+
+    IQueryable<StoreDto>? locations;
+
+    private bool showProduct = false;
+
+    IQueryable<ProductDisplayDto>? productDisplays;
+    List<TransferLineDto> productSelected = new List<TransferLineDto>();
+    IQueryable<TransferLineDto>? productLines;
+    bool? canceled;
+
+
+    List<Option<string>> stringOptionsLocationFrom = new();
+    //string? stringLocationFrom = "(Select Location From)";
+    Option<string> selectedLocationFromId = default!;
+    string? stringLocationFromSelect = "(Select Location From)";
+    private int StoreFromId;
+
+    List<Option<string>> stringOptionsLocationTo = new();
+    //string? stringLocationTo = "(Select Location To)";
+    Option<string> selectedLocationToId = default!;
+    string? stringLocationToSelect = "(Select Location From)";
+    private int StoreToId;
+
+    string? stringLocationFrom
+    {
+        get
+        {
+            return stringLocationFromSelect;
+        }
+        set
+        {
+            stringLocationFromSelect = value;
+
+            if (selectedLocationFromId.Value != null)
+            {
+                StoreFromId = Convert.ToInt32(selectedLocationFromId.Value);
+                GetProduct().GetAwaiter();
+            }
+
+
+        }
+    }
+
+    string? stringLocationTo
+    {
+
+        get
+        {
+            return stringLocationToSelect;
+        }
+        set
+        {
+            stringLocationToSelect = value;
+
+            if (selectedLocationToId.Value != null)
+            {
+                StoreToId = Convert.ToInt32(selectedLocationToId.Value);
+            }
+
+        }
+    }
+
+
+    private async Task GetProduct()
+    {
+        // StoreFromId= Convert.ToInt32(selectedLocationFromId.Value);
+
+        productDisplays = (await _productDisplay.GetProductTransferSelectionAsycn(StoreFromId)).AsQueryable();
+        StateHasChanged();
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            base.OnInitialized();
+            int storeCount = await _storeServices.CountAsync();
+            IsLoading = true;
+            if (storeCount < 2)
+            {
+                var dialog = await _dialogService.ShowWarningAsync("To Transfer Stock, At least there are two locations");
+                var result = await dialog.Result;
+                canceled = result.Cancelled;
+
+                IsLoading = false;
+
+                _navman.NavigateTo("/");
+            }
+            locations = (await _storeServices.GetStoreListAsycn()).AsQueryable();
+            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+
+            // Initialize locations
+            stringOptionsLocationFrom = new()
+                {
+                    { new Option<string> { Value = "0", Text =  "(Select Location From)", Selected = true} }
+                 };
+            stringOptionsLocationTo = new()
+                {
+                    { new Option<string> { Value = "0", Text =  "(Select Location To)", Selected = true} }
+                 };
+
+            foreach (var item in locations)
+            {
+                stringOptionsLocationFrom.Add(new Option<string>
+                    {
+                        Value = item.StoreId.ToString(), // Assuming CategoryId is an integer
+                        Text = item.StoreName,
+                        Selected = false // You can set this based on your logic
+                    });
+
+                stringOptionsLocationTo.Add(new Option<string>
+                    {
+                        Value = item.StoreId.ToString(), // Assuming CategoryId is an integer
+                        Text = item.StoreName,
+                        Selected = false // You can set this based on your logic
+                    });
+
+            }
+
+            init();
+
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+        }
+    }
+
+    private async void init()
+    {
+        model = new TransactionDto();
+
+        model.TransactionType = ((int)TransactionType.Transfer).ToString();
+        model.TransactionDate = DateTime.Today;
+        model.Description = "Stock Transfer";
+        model.CreatedBy = "Admin";
+        model.CreatedAt = DateTime.Today;
+
+    }
+    private bool verify()
+    {
+        if (stringLocationFrom == "(Select Location From)")
+        {
+            _dialogService.ShowInfo("Select Location From", "Save");
+            return false;
+        }
+
+        if (stringLocationTo == "(Select Location To)")
+        {
+            _dialogService.ShowInfo("Select Location To", "Save");
+            return false;
+        }
+        if (stringLocationFrom == stringLocationTo)
+        {
+            _dialogService.ShowInfo("Location of Source and target, Should be different ! ", "Save");
+            return false;
+        }
+        return true;
+    } 
+    private  void Show(bool flg)
+    {
+       
+        if(verify ()==false)
+        {
+            return;
+        }
+
+        showProduct = flg;
+
+    }
+    private async void Delete(int Id)
+    {
+        try
+        {
+            var selectedProduct = productSelected.FirstOrDefault(p => p.SkuId == Id);
+            if (selectedProduct != null)
+            {
+                productSelected.Remove(selectedProduct);
+            }
+            productLines = productSelected.AsQueryable();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+    }
+    private async void Add(int Id)
+    {
+
+
+        // Find the product with the specified Id in the productDisplays collection
+        var selectedProduct = productDisplays.FirstOrDefault(p => p.SkuId == Id);
+
+
+
+        if (selectedProduct != null)
+        {
+            if (productLines != null)
+            {
+                foreach (var dat in productLines)
+                {
+                    // Cek apakah data sudah dipilih. Tidak boleh menambahkan data yang sudah ada
+                    if (dat.SkuId == selectedProduct.SkuId)
+                    {
+                        return;
+                    }
+                }
+
+            }
+
+            if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
+            {
+                _dialogService.ShowInfo("Qty is not available", "Qty Available");
+                return;
+            }
+
+
+
+
+            // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
+
+            var a = new TransferLineDto()
+
+                {
+                    ProductName = selectedProduct.ProductName,
+                    SKU = selectedProduct.SKU,
+                    SkuId = selectedProduct.SkuId,
+                    StoreIdFrom = StoreFromId, // Lokasi sumber pemindahan stok
+                    StoreIdTo = StoreToId,
+                    TransactionType = ((int)TransactionType.Transfer).ToString(),
+                    Qty = selectedProduct.Qty,
+                    Price = 0
+
+                };
+            productSelected.Add(a);
+
+
+        }
+
+        productLines = productSelected.AsQueryable();
+
+
+        StateHasChanged();
+
+
+    }
+
+    private async void Save()
+    {
+        try
+        {
+
+            if (verify() == false)
+            {
+                return;
+            }
+
+       
+            IsLoading = true;
+            TransactionDto a = new TransactionDto()
+                {
+                    TransactionDate = model.TransactionDate,
+                    TransactionType = model.TransactionType,
+                     CreatedAt = model.CreatedAt,
+                    CreatedBy = model.CreatedBy,
+                    IsPosted = true,
+                    Description = model.Description
+                };
+
+            ServiceLayer.Model.ServiceResponseDTO<bool> result = new();
+            result = await _transactionServices.TransferAsync(a, productLines);
+
+            IsLoading = false;
+            // berikan pesan
+
+            if (result.Success == true)
+            {
+                _dialogService.ShowInfo(result.Message, "Save");
+            }
+            else
+            {
+                _dialogService.ShowWarning(result.Message, "Save");
+            }
+
+            // remove product selected from user interface
+            productLines = null;
+            result = new();
+            init();
+            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+    }
 
 }

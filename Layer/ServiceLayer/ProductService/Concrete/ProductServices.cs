@@ -210,6 +210,74 @@ namespace ServiceLayer.ProductService.Concrete
                 return null;
             }
         }
+        /// <summary>
+        /// Mendapatkan Stok dari Lokasi
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ProductDisplayDto>?> GetProductTransferSelectionAsycn(int Id)
+        {
+            try
+            {
+                //var query = (from o in _context.Products where (o.ProductSkus.First().Stocks.First().Store.StoreId == Id)
+                //             select new ProductDisplayDto
+                //             {
+                //                 ProductName = o.ProductName,
+                //                 SkuId = o.ProductSkus.First().SkuId,
+                //                 SKU = o.ProductSkus.First().SKU,
+                //                 QtyAvaiable = o.ProductSkus.First().Stocks.First().qty
+                //             });
+
+
+
+                // where loan.Stsrec == "A"
+                var query =(from p in _context.Products 
+                            join s in _context.ProductSkus on p.ProductId equals s.ProductId 
+                            join t in _context.stocks on s.SkuId equals t.SkuId
+                            where t.StoreId == Id
+                            select new ProductDisplayDto
+                              {
+                                  ProductName = p.ProductName,
+                                  SkuId = s.SkuId,
+                                  SKU = s.SKU,
+                                  QtyAvaiable = t.qty
+                              });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        //var query = (
+        //          from loan in _context.MLoans
+        //          join cif in _context.MCifs on loan.Nocif equals cif.Nocif
+        //          join kycp in _context.Mkycps on cif.Nocif equals kycp.Nocif
+        //          join ao in _context.Marketings on loan.Kdaoh equals ao.Kodeao
+        //          join tabungan in _context.MTabungancs on loan.Noacdroping equals tabungan.Noacc into tabunganGroup
+        //          from tabungan in tabunganGroup.DefaultIfEmpty()
+
+
+        //          where loan.Stsrec == "A"
+
+        //          orderby loan.Tgljtempo
+        //          select new LoanAODto
+        //          {
+        //              noacc = loan.Noacc,
+        //              fnama = loan.Fnama,
+        //              dnd = loan.Dnd,
+        //              kecamatan = kycp.Kecamatan,
+        //              kelurahan = kycp.Kelurahan,
+        //              nama_ao = ao.Ket,
+        //              kdkolektor = loan.Kdkolektor,
+        //              tahunbuka = loan.Tglbuka.Substring(0, 4)
+        //          }
+        //      );
+        //var resultList = await query.ToListAsync();
+
         public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
         {
             try

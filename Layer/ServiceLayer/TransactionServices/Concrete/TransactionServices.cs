@@ -59,7 +59,7 @@ namespace ServiceLayer.TransactionServices.Concrete
         private async Task<ServiceResponseDTO<bool>> AddAsync(TransactionDto objDTO)
         {
             ServiceResponseDTO<bool> result = new();
-           
+
             try
             {
                 var ItemToAdd = new productTransaction
@@ -85,8 +85,7 @@ namespace ServiceLayer.TransactionServices.Concrete
                 return result;
             }
         }
-
-        public async Task<ServiceResponseDTO<bool>> CreateAsync(TransactionDto objDTO,IEnumerable<TransactionLineDto> linesDto)
+        public async Task<ServiceResponseDTO<bool>> TransferAsync(TransactionDto objDTO, IEnumerable<TransferLineDto> linesDto)
         {
             ServiceResponseDTO<bool> result = new();
             int Id = await GetIDAsync();
@@ -97,21 +96,38 @@ namespace ServiceLayer.TransactionServices.Concrete
                 return result;
             }
             objDTO.TransactionId = Id;
-            result=await AddAsync(objDTO);
+            result = await AddAsync(objDTO);
 
-            int type =(int) Convert.ToInt32(objDTO.TransactionType);
-            
-            // case A OR B >>
-            // Case A
-            // Case B
-            // break;
+            result = await _lineServices.TransferAsync(Id, linesDto);
+
+
+            return result;
+        }
+
+
+        public async Task<ServiceResponseDTO<bool>> CreateAsync(TransactionDto objDTO, IEnumerable<TransactionLineDto> linesDto)
+        {
+            ServiceResponseDTO<bool> result = new();
+            int Id = await GetIDAsync();
+            if (Id == -1)
+            {
+                result.Message = "Tidak bisa simpan data";
+                result.Success = false;
+                return result;
+            }
+            objDTO.TransactionId = Id;
+            result = await AddAsync(objDTO);
+
+            int type = (int)Convert.ToInt32(objDTO.TransactionType);
+
+         
 
             switch (type)
             {
                 case (int)TransactionType.InitialStock:
-                    result =  await _lineServices.AddInitialStockAsync(Id, linesDto);
+                    result = await _lineServices.AddInitialStockAsync(Id, linesDto);
                     break;
-                case (int) TransactionType.Purchase :
+                case (int)TransactionType.Purchase:
                 case (int)TransactionType.Purchase_Return:
                     result = await _lineServices.AddPurchasesAsync(Id, linesDto);
                     break;
@@ -122,12 +138,13 @@ namespace ServiceLayer.TransactionServices.Concrete
                 case (int)TransactionType.Adjustment:
                     result = await _lineServices.AddAdjusmentAsync(Id, linesDto);
                     break;
+
                 default:
                     // code block
                     break;
             }
 
-           return result;
+            return result;
         }
 
     }
