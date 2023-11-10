@@ -99,7 +99,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
-        <PropertyColumn Property="@(c => c.StoreId)" Title="SroreId" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.StoreId)" Title="StoreId" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
         <TemplateColumn Title="Qty">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1" ></FluentNumberField>

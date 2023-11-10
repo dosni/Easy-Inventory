@@ -109,7 +109,13 @@ namespace ServiceLayer.UserServices.Concrete
             claimPos = new Claim("Position", objDTO.Role);
             await this._userManager.AddClaimAsync(user, claimPos);
 
-            message = "pembuatan user berhasil";
+            // Tambahkan Claim Location
+            Claim claimStoreId;
+            claimStoreId = new Claim("StoreId", objDTO.StoreId.ToString());
+
+            await this._userManager.AddClaimAsync(user, claimStoreId);
+
+            message = "user created";
             await createLog(objDTO.UserName, message);
 
             response.Data = user.Id;

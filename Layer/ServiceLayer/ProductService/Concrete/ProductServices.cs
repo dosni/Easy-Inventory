@@ -7,7 +7,9 @@ using MySql.Data.MySqlClient;
 using ServiceLayer.ResponseServices;
 using ServiceLayer.StoreServices;
 using ServiceLayer.TransactionServices;
+using System;
 using System.Data;
+using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 
 namespace ServiceLayer.ProductService.Concrete
 {
@@ -302,41 +304,40 @@ namespace ServiceLayer.ProductService.Concrete
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<ProductDisplayDto>?> GetInitialProductSelectionAsycn()
+        public async Task<IEnumerable<ProductDisplayDto>?> GetInitialProductSelectionAsycn(int LocationId)
         {
 
             try
             {
-                // SELECT        dbo.Products.ProductName, dbo.ProductSkus.SKU, dbo.ProductSkus.Price, dbo.stocks.qty
-                // FROM dbo.Products INNER JOIN
-                // dbo.ProductSkus ON dbo.Products.ProductId = dbo.ProductSkus.ProductId LEFT OUTER JOIN
-                // dbo.stocks ON dbo.ProductSkus.SkuId = dbo.stocks.SkuId
-                // WHERE        (dbo.stocks.qty IS NULL)
+                var productsWithTransactions = await (from s in _context.ProductSkus
+                                                      join t in _context.stocks on s.SkuId equals t.SkuId
+                                                      where t.StoreId == LocationId
+                                                      select s.SkuId).Distinct().ToListAsync();
 
-                var query = (from p in _context.Products
-                             join s in _context.ProductSkus on p.ProductId equals s.ProductId
-                             join t in _context.stocks on s.SkuId equals t.SkuId into stockGroup
-                             from stock in stockGroup.DefaultIfEmpty()
-                             where stock.qty == null
+                // Query to get all products
+                var allProductsQuery = (from p in _context.Products
+                                        join s in _context.ProductSkus on p.ProductId equals s.ProductId
+                                        select new ProductDisplayDto
+                                        {
+                                            ProductName = p.ProductName,
+                                            SkuId = s.SkuId,
+                                            SKU = s.SKU,
+                                            StoreId = null
+                                        });
 
-                             select new ProductDisplayDto
-                             {
-                                 ProductName = p.ProductName,
-                                 SkuId = s.SkuId,
-                                 SKU = s.SKU,
-                                 StoreId = stock.StoreId, //(stock != null) ? stock.StoreId : 0,
-                                 QtyAvaiable = stock.qty // (stock != null) ? stock.qty : 0 // You might want to handle the case where stock is null
-                             });
-                var data = await query.ToListAsync();
-                return data.AsQueryable();
+                var allProducts = await allProductsQuery.ToListAsync();
 
+                // Filter out products with transactions
+                var filteredData = allProducts.Where(p => !productsWithTransactions.Contains(p.SkuId));
+
+                return filteredData.AsQueryable();
             }
             catch (Exception ex)
             {
                 return null;
             }
         }
-
+      
         /// <summary>
         /// Mendapatkan Stok dari Lokasi
         /// </summary>
