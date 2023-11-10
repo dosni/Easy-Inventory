@@ -53,6 +53,7 @@ namespace ServiceLayer.UserServices.Concrete
                     Name = objDTO.Name,
                     PhoneNumber = objDTO.UserName,
                     PhoneNumberConfirmed = false,
+                    StoreId = objDTO.StoreId
 
                 };
             }
@@ -63,7 +64,8 @@ namespace ServiceLayer.UserServices.Concrete
                     UserName = objDTO.UserName,
                     Name = objDTO.Name,
                     Email = objDTO.UserName,
-                    EmailConfirmed = false
+                    EmailConfirmed = false,
+                    StoreId = objDTO.StoreId
                 };
             }
             else
@@ -74,7 +76,8 @@ namespace ServiceLayer.UserServices.Concrete
                     UserName = objDTO.UserName,
                     Name = objDTO.Name,
                     EmailConfirmed = false,
-                    PhoneNumberConfirmed = false
+                    PhoneNumberConfirmed = false,
+                    StoreId = objDTO.StoreId
                 };
 
             }

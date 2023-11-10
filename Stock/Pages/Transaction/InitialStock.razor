@@ -85,6 +85,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.StoreId)" Title="StoreId" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
 
         <TemplateColumn Title="Qty">
@@ -106,12 +107,15 @@ else
 }
 
 @code {
+
+
     private bool IsLoading { get; set; } = false;
     private bool showProduct = false;
     public TransactionDto model { get; set; }
 
     IQueryable<ProductDisplayDto>? productDisplays;
 
+    private int LocationId { get; set; }
 
     List<TransactionLineDto> productSelected = new List<TransactionLineDto>();
 
@@ -126,7 +130,13 @@ else
         {
             base.OnInitialized();
             IsLoading = true;
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            var loc = _userContext.GetLocationId();
+            LocationId = loc.Result;
+
+
+            productDisplays = (await _productDisplay.GetInitialProductSelectionAsycn()).AsQueryable();
+
+        
             init();
 
             IsLoading = false;
@@ -197,7 +207,7 @@ else
                     ProductName = selectedProduct.ProductName,
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
-                    StoreId = 1,
+                    StoreId = LocationId,
                     TransactionType = ((int)Common.TransactionType.InitialStock).ToString(),
                     Qty = selectedProduct.Qty,
                     Price = selectedProduct.Price
@@ -271,7 +281,7 @@ else
             init();
 
             // show update data for product display
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            productDisplays = (await _productDisplay.GetInitialProductSelectionAsycn()).AsQueryable();
             StateHasChanged();
 
         }

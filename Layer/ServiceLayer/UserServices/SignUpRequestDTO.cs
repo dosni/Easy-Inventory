@@ -29,5 +29,7 @@ namespace ServiceLayer.UserServices
 
         [Required(ErrorMessage = "Role Is required")]
         public string Role { get; set; }
+        public int StoreId { get; set; } // location
+
     }
 }

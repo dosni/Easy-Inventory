@@ -99,6 +99,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.StoreId)" Title="SroreId" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
         <TemplateColumn Title="Qty">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1" ></FluentNumberField>
@@ -124,7 +125,7 @@ else
     private bool showProduct = false;
     public TransactionDto model { get; set; }
 
-
+    private int LocationId { get; set; }
     IQueryable<ProductDisplayDto>? productDisplays;
 
 
@@ -168,7 +169,13 @@ else
         {
             base.OnInitialized();
             IsLoading = true;
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+
+
+            var loc = _userContext.GetLocationId();
+            LocationId = loc.Result;
+
+            productDisplays = (await _productDisplay.GetProductSalesSelectionAsycn(LocationId)).AsQueryable();
+            
             contacts = (await _contactServices.GetCustomerListAsycn()).AsQueryable();
 
             stringOptionsType = new()
@@ -282,7 +289,7 @@ else
                     ProductName = selectedProduct.ProductName,
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
-                    StoreId = 1,
+                    StoreId = LocationId,
                     TransactionType = selectedTypeId.Value,
                     Qty = selectedProduct.Qty,
                     Price = selectedProduct.Price
@@ -351,7 +358,7 @@ else
             productLines = null;
             result = new();
             init();
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            productDisplays = (await _productDisplay.GetProductSalesSelectionAsycn(LocationId)).AsQueryable();
             StateHasChanged();
 
         }

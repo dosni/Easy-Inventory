@@ -56,6 +56,11 @@
     }
     private async void Edit(int Id, string loc)
     {
+        if (Id == 1)
+        {
+            _dialogService.ShowInfo("Can not update default", "Update");
+            return;
+        }
         _navman.NavigateTo($"storeUpdate/{Id}/{loc}");
     }
 

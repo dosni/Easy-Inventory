@@ -74,6 +74,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.StoreId)" Title="StoreId" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
         <TemplateColumn Title="Qty Counted">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.QtyCounted  Placeholder="Qty Counted" Min="0"></FluentNumberField>
@@ -95,6 +96,8 @@ else
     public TransactionDto model { get; set; }
 
     private bool showProduct = false;
+    
+    private int LocationId { get; set; }
 
     IQueryable<ProductDisplayDto>? productDisplays;
     List<TransactionLineDto> productSelected = new List<TransactionLineDto>();
@@ -107,7 +110,10 @@ else
         {
             base.OnInitialized();
             IsLoading = true;
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            var loc = _userContext.GetLocationId();
+            LocationId = loc.Result;
+
+            productDisplays = (await _productDisplay.GetProductAdjustmentSelectionAsycn(LocationId)).AsQueryable();
             init();
 
             IsLoading = false;
@@ -209,7 +215,7 @@ else
                     ProductName = selectedProduct.ProductName,
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
-                    StoreId = 1,
+                    StoreId = LocationId,
                     TransactionType = model.TransactionType,
                     QtyAvaiable = selectedProduct.QtyAvaiable,
                     QtyCounted = selectedProduct.QtyCounted,
@@ -275,7 +281,7 @@ else
             productLines = null;
             result = new();
             init();
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            productDisplays = (await _productDisplay.GetProductAdjustmentSelectionAsycn(LocationId)).AsQueryable();
             StateHasChanged();
 
         }

@@ -2,6 +2,7 @@
 using DataLayer.Context;
 using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MySql.Data.MySqlClient;
 using ServiceLayer.ResponseServices;
 using ServiceLayer.StoreServices;
@@ -54,24 +55,6 @@ namespace ServiceLayer.ProductService.Concrete
 
         }
 
-        public async Task<ProductDto> GetProductAsync(int productId)
-        {
-            string sql = @"SELECT  products.ProductId, products.ProductName,products.ProductDescription, productskus.SKU
-                           FROM  products Inner join  productskus ON products.ProductId = productskus.ProductId where products.ProductId = @productId ;";
-
-            using (IDbConnection connection = new MySqlConnection(_context.Database.GetConnectionString()))
-            {
-                try
-                {
-                    var data = await connection.QuerySingleAsync<ProductDto>(sql, new { productId });
-                    return data;
-                }
-                catch (Exception ex)
-                {
-                    return null;
-                }
-            }
-        }
 
         public ProductDto? GetProduct(int productId)
         {
@@ -167,40 +150,183 @@ namespace ServiceLayer.ProductService.Concrete
             }
 
         }
+        public async Task<IEnumerable<ProductDisplayDto>?> GetProducPurchasetSelectionAsycn()
+        {
+            try
+            {
 
-        public async Task<IEnumerable<ProductListDto>?> GetProductNameListAsycn()
-        {
-            try
-            {
-                var query = (from cat in _context.Products
-                             select new ProductListDto
-                             {
-                                 ProductId = cat.ProductId,
-                                 ProductName = cat.ProductName
-                             });
-                var data = await query.ToListAsync();
-                return data.AsQueryable();
-            }
-            catch (Exception ex)
-            {
-                string msg = ex.Message;
-                return null;
-            }
-        }
-        public async Task<IEnumerable<ProductDisplayDto>?> GetProductSelectionAsycn()
-        {
-            try
-            {
-                var query = (from o in _context.Products
+
+                var query = (from p in _context.Products
+                             join s in _context.ProductSkus on p.ProductId equals s.ProductId
+
                              select new ProductDisplayDto
                              {
-                                 ProductName = o.ProductName,
-                                 SkuId = o.ProductSkus.FirstOrDefault().SkuId,
-                                 SKU = o.ProductSkus.FirstOrDefault().SKU,
-                                 QtyAvaiable=o.ProductSkus.FirstOrDefault().Stocks.FirstOrDefault().qty,
-                                 Price = o.ProductSkus.FirstOrDefault().Price
+                                 ProductName = p.ProductName,
+                                 SkuId = s.SkuId,
+                                 SKU = s.SKU,
+                                 Price = s.Price
                              });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<IEnumerable<ProductDisplayDto>?> GetProductSalesSelectionAsycn(int storeId)
+        {
+            try
+            {
 
+
+                var query = (from p in _context.Products
+                             join s in _context.ProductSkus on p.ProductId equals s.ProductId
+                             join t in _context.stocks on s.SkuId equals t.SkuId into stockGroup
+                             from stock in stockGroup.DefaultIfEmpty() // Equivalent to a RIGHT OUTER JOIN
+                             where stock.StoreId == storeId
+
+                             select new ProductDisplayDto
+                             {
+                                 ProductName = p.ProductName,
+                                 SkuId = s.SkuId,
+                                 SKU = s.SKU,
+                                 Price = s.Price,
+                                 StoreId = stock.StoreId,
+                                 QtyAvaiable = stock.qty // (stock != null) ? stock.qty : 0 // You might want to handle the case where stock is null
+                             });
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<IEnumerable<ProductDisplayDto>?> GetProductAdjustmentSelectionAsycn(int storeId)
+        {
+            try
+            {
+
+
+                /*  
+                  First Approach :
+
+                  var query = (from p in _context.Products
+                             join s in _context.ProductSkus on p.ProductId equals s.ProductId
+                             join t in _context.stocks on s.SkuId equals t.SkuId into stockGroup
+                             from stock in stockGroup.DefaultIfEmpty() // Equivalent to a RIGHT OUTER JOIN
+                             where stock.StoreId == storeId || stock.StoreId == null
+
+                             select new ProductDisplayDto
+                             {
+                                 ProductName = p.ProductName,
+                                 SkuId = s.SkuId,
+                                 SKU = s.SKU,
+                                 Price = s.Price,
+                                 StoreId = stock.StoreId,
+                                 QtyAvaiable = stock.qty
+                             });
+               
+                The performance difference between the two approaches can depend on various factors, including the size of your data, the complexity of your database schema, 
+                and how well the database engine can optimize the queries. Let's discuss the general considerations for each approach:
+
+                First Approach (Explicit Joins):
+                Pros:
+
+                More explicit control over the join conditions.
+                Readable and easy to understand.
+                Cons:
+
+                Potential for N+1 query issues: This happens when separate database queries are made for each related entity. For example, if a product has many skus, and each sku has many stocks, 
+                you might end up with multiple database queries to fetch the related data.
+                
+                ------------
+
+                Second Approach (Using Include):
+                Pros:
+
+                Eager loading can reduce the number of database queries by fetching related data in a single query.
+                More concise code.
+                Cons:
+
+                May retrieve more data than needed, especially if you're not careful with filtering in the Include statements.
+                Might result in a more complex SQL query generated by the ORM, and the database might have limitations on optimization.
+
+                Considerations:
+                Data Size: For small datasets, the performance difference might not be noticeable. For larger datasets, the second approach with eager loading could be more efficient.
+
+                Database Optimization: Modern database engines are often optimized to handle complex queries efficiently. The actual performance might depend on the specific database engine you're using.
+
+                N+1 Issue: If you notice performance issues with the first approach, you can address potential N+1 query problems by using methods like Include or LoadWith selectively.
+
+                Recommendation:
+                If your data is relatively small and the first approach is more readable for you, it might be a reasonable choice.
+
+                If you're dealing with larger datasets or notice performance issues, consider using the second approach with Include but be mindful of potential pitfalls.
+
+                In practice, it's often a good idea to profile your application using a tool like Entity Framework Profiler or SQL Server Profiler to analyze the actual queries being executed and 
+                their performance characteristics. 
+                This can help you make informed decisions about optimizing your queries based on your specific use case.
+                   
+               */
+
+
+                // Second Approach
+
+                var query = _context.Products
+                    .Include(p => p.ProductSkus)
+                    .ThenInclude(s => s.Stocks)
+                .Select(p => new ProductDisplayDto
+                {
+                    ProductName = p.ProductName,
+                    SkuId = p.ProductSkus.FirstOrDefault().SkuId,
+                    SKU = p.ProductSkus.FirstOrDefault().SKU,
+                    StoreId = p.ProductSkus.FirstOrDefault().Stocks.FirstOrDefault(t => t.StoreId == storeId || t.StoreId == null).StoreId,
+                    QtyAvaiable = p.ProductSkus.FirstOrDefault().Stocks.FirstOrDefault(t => t.StoreId == storeId || t.StoreId == null).qty,
+                    Price = p.ProductSkus.FirstOrDefault().Price
+                })
+                .Where(dto => dto.StoreId == storeId || dto.StoreId == null);
+
+                var data = await query.ToListAsync();
+                return data.AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Do not include product with avaiable quantity.
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ProductDisplayDto>?> GetInitialProductSelectionAsycn()
+        {
+
+            try
+            {
+                // SELECT        dbo.Products.ProductName, dbo.ProductSkus.SKU, dbo.ProductSkus.Price, dbo.stocks.qty
+                // FROM dbo.Products INNER JOIN
+                // dbo.ProductSkus ON dbo.Products.ProductId = dbo.ProductSkus.ProductId LEFT OUTER JOIN
+                // dbo.stocks ON dbo.ProductSkus.SkuId = dbo.stocks.SkuId
+                // WHERE        (dbo.stocks.qty IS NULL)
+
+                var query = (from p in _context.Products
+                             join s in _context.ProductSkus on p.ProductId equals s.ProductId
+                             join t in _context.stocks on s.SkuId equals t.SkuId into stockGroup
+                             from stock in stockGroup.DefaultIfEmpty()
+                             where stock.qty == null
+
+                             select new ProductDisplayDto
+                             {
+                                 ProductName = p.ProductName,
+                                 SkuId = s.SkuId,
+                                 SKU = s.SKU,
+                                 StoreId = stock.StoreId, //(stock != null) ? stock.StoreId : 0,
+                                 QtyAvaiable = stock.qty // (stock != null) ? stock.qty : 0 // You might want to handle the case where stock is null
+                             });
                 var data = await query.ToListAsync();
                 return data.AsQueryable();
 
@@ -210,6 +336,7 @@ namespace ServiceLayer.ProductService.Concrete
                 return null;
             }
         }
+
         /// <summary>
         /// Mendapatkan Stok dari Lokasi
         /// </summary>
@@ -219,32 +346,24 @@ namespace ServiceLayer.ProductService.Concrete
         {
             try
             {
-                //var query = (from o in _context.Products where (o.ProductSkus.First().Stocks.First().Store.StoreId == Id)
-                //             select new ProductDisplayDto
-                //             {
-                //                 ProductName = o.ProductName,
-                //                 SkuId = o.ProductSkus.First().SkuId,
-                //                 SKU = o.ProductSkus.First().SKU,
-                //                 QtyAvaiable = o.ProductSkus.First().Stocks.First().qty
-                //             });
 
+                var query = from p in _context.Products
+                            join s in _context.ProductSkus on p.ProductId equals s.ProductId
+                            join stock in _context.stocks on s.SkuId equals stock.SkuId into stockGroup
+                            from stock in stockGroup.DefaultIfEmpty()  // Equivalent to a LEFT OUTER JOIN
 
+                            where stock.StoreId == Id && stock.qty > 0
 
-                // where loan.Stsrec == "A"
-                var query =(from p in _context.Products 
-                            join s in _context.ProductSkus on p.ProductId equals s.ProductId 
-                            join t in _context.stocks on s.SkuId equals t.SkuId
-                            where t.StoreId == Id
                             select new ProductDisplayDto
-                              {
-                                  ProductName = p.ProductName,
-                                  SkuId = s.SkuId,
-                                  SKU = s.SKU,
-                                  QtyAvaiable = t.qty
-                              });
+                            {
+                                ProductName = p.ProductName,
+                                SkuId = s.SkuId,
+                                SKU = s.SKU,
+                                StoreId = stock.StoreId,
+                                QtyAvaiable = stock.qty
+                            };
                 var data = await query.ToListAsync();
                 return data.AsQueryable();
-
             }
             catch (Exception ex)
             {
@@ -252,31 +371,7 @@ namespace ServiceLayer.ProductService.Concrete
             }
         }
 
-        //var query = (
-        //          from loan in _context.MLoans
-        //          join cif in _context.MCifs on loan.Nocif equals cif.Nocif
-        //          join kycp in _context.Mkycps on cif.Nocif equals kycp.Nocif
-        //          join ao in _context.Marketings on loan.Kdaoh equals ao.Kodeao
-        //          join tabungan in _context.MTabungancs on loan.Noacdroping equals tabungan.Noacc into tabunganGroup
-        //          from tabungan in tabunganGroup.DefaultIfEmpty()
 
-
-        //          where loan.Stsrec == "A"
-
-        //          orderby loan.Tgljtempo
-        //          select new LoanAODto
-        //          {
-        //              noacc = loan.Noacc,
-        //              fnama = loan.Fnama,
-        //              dnd = loan.Dnd,
-        //              kecamatan = kycp.Kecamatan,
-        //              kelurahan = kycp.Kelurahan,
-        //              nama_ao = ao.Ket,
-        //              kdkolektor = loan.Kdkolektor,
-        //              tahunbuka = loan.Tglbuka.Substring(0, 4)
-        //          }
-        //      );
-        //var resultList = await query.ToListAsync();
 
         public async Task<IEnumerable<ProductDto>?> GetProductListAsycn()
         {
@@ -370,7 +465,7 @@ namespace ServiceLayer.ProductService.Concrete
                     result.Message = result.Success ? "Product is changed. " + flg.Message : "Product is not changed. " + flg.Message;
                     return result;
 
-                 
+
                 }
                 else
                 {

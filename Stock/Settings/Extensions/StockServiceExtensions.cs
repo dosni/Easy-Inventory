@@ -28,8 +28,9 @@ namespace Stock.Settings.Extensions
             services.AddScoped<TransactionServices>();
             services.AddScoped<TransactionLineServices>();
 
-           services.AddScoped<UserServices>();
-           services.AddScoped<UserLogServices>();
+            services.AddScoped<UserServices>();
+            services.AddScoped<UserLogServices>();
+            services.AddScoped<UserContextService>();
         }
     }
 }

@@ -100,6 +100,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Property="@(c => c.StoreId)" Title="StoreId" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock Source" Align="Align.Start" />
         <TemplateColumn Title="Qty">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
@@ -184,10 +185,12 @@ else
 
     private async Task GetProduct()
     {
-        // StoreFromId= Convert.ToInt32(selectedLocationFromId.Value);
 
+        await Task.Delay(100);
         productDisplays = (await _productDisplay.GetProductTransferSelectionAsycn(StoreFromId)).AsQueryable();
+
         StateHasChanged();
+
 
     }
     protected override async Task OnInitializedAsync()
@@ -208,8 +211,8 @@ else
                 _navman.NavigateTo("/");
             }
             locations = (await _storeServices.GetStoreListAsycn()).AsQueryable();
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
-
+        
+            GetProduct().GetAwaiter();
             // Initialize locations
             stringOptionsLocationFrom = new()
                 {
@@ -379,7 +382,11 @@ else
             {
                 return;
             }
-
+            if (productSelected.Count == 0)
+            {
+                _dialogService.ShowInfo("Add product", "Select Products");
+                return;
+            }
        
             IsLoading = true;
             TransactionDto a = new TransactionDto()
@@ -411,7 +418,7 @@ else
             productLines = null;
             result = new();
             init();
-            productDisplays = (await _productDisplay.GetProductSelectionAsycn()).AsQueryable();
+            GetProduct().GetAwaiter();
             StateHasChanged();
         }
         catch (Exception ex)

@@ -51,23 +51,23 @@
                                             OptionText="@(i => i.Text)"
                                             OptionValue="@(i => i.Value)"
                                             OptionSelected="@(i => i.Selected)"
-                            @bind-Value="@stringValue" />
+                            @bind-SelectedOption="@selectedRoleId"
+                            @bind-Value="@stringRole" />
 
                         </FluentGridItem>
                     </FluentGrid>
-
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentCombobox Items=@stringOptionsStore
+                                            OptionText="@(i => i.Text)"
+                                            OptionValue="@(i => i.Value)"
+                                            OptionSelected="@(i => i.Selected)"
+                            @bind-SelectedOption="@selectedStoreId"
+                            @bind-Value="@stringStore" />
+                        </FluentGridItem>
+                    </FluentGrid>
                 </FluentGridItem>
             </FluentGrid>
-
-
-
-
-            @*    <p> Pilih Role User </p>
-            <FluentSelect @bind-Value="@selectValue" TOption="string">
-            <FluentOption>Admin</FluentOption>
-            <FluentOption>CS</FluentOption>
-            <FluentOption>User</FluentOption>
-            </FluentSelect> *@
 
             <br />
         </FluentStack>
@@ -87,60 +87,124 @@
 @code {
 
     private bool IsLoading { get; set; }
-    string? selectValue = "User";
-    string? stringValue;
+    // string? selectValue = "User";
+    string? stringUser;
+
+    List<Option<string>> stringOptionsStore = new();
+    Option<string> selectedStoreId = default!;
+    string stringStoreSelect = "default";
+
+
+    List<Option<string>> stringOptionsRole = new();
+    Option<string> selectedRoleId = default!;
+    string stringRoleSelect = "default";
 
     SignUpRequestDTO user = new SignUpRequestDTO();
+
+    IQueryable<StoreDto>? stores;
 
     //show / hide password
 
     bool isShow;
-    string message = "";
+   
 
     ServiceResponseDTO<string> result { get; set; }
 
-    static List<Option<string>> stringOptionsRole = new()
+    string? stringStore
     {
+        get
+        {
+            return stringStoreSelect;
+        }
+        set
+        {
+            stringStoreSelect = value;
+        }
+    }
 
-        { new Option<string> { Value = "1", Text = "User", Selected=true } },
-        { new Option<string> { Value = "2", Text = "CS" } },
-        { new Option<string> { Value = "3", Text = "Admin" } }
+    string? stringRole
+    {
+        get
+        {
+            return stringRoleSelect;
+        }
+        set
+        {
+            stringRoleSelect = value;
+        }
+    }
 
-    };
 
     protected override async Task OnInitializedAsync()
     {
+        IsLoading = true;
+        stores = (await _storeServices.GetStoreListAsycn()).AsQueryable();
 
-        user.Role = "User";
+
+        init();
+        IsLoading = false;
 
     }
+    private async void init()
+    {
+        user = new SignUpRequestDTO();
+        user.Role = "User";
 
+        stringOptionsRole = new()
+            {
+                { new Option<string> { Value = "User", Text = "User", Selected=true } },
+                { new Option<string> { Value = "CS", Text = "CS" } },
+                { new Option<string> { Value = "Admin", Text = "Admin" } }
+            };
+
+        stringOptionsStore.Add(new Option<string>
+            {
+                Value = "0",
+                Text = "(Select Location)",
+                Selected = true // You can set this based on your logic
+            });
+
+        foreach (var item in stores)
+        {
+            stringOptionsStore.Add(new Option<string>
+                {
+                    Value = item.StoreId.ToString(), // Assuming CategoryId is an integer
+                    Text = item.StoreName,
+                    Selected = false // You can set this based on your logic
+                });
+        }
+    }
     async Task HandleRegistration()
     {
+        if (stringStore == "(Select Location)")
+        {
+            _dialogService.ShowInfo("Select Location", "Save");
+            return;
+        }
 
         IsLoading = true;
         // user boleh membuat user tanpa email dan password
 
+        user.StoreId = Convert.ToInt32(selectedStoreId.Value);
+        user.Role = selectedRoleId.Value;
+
         result = new();
-
-
         result = await _userServices.RegisterUser(user);
 
 
         if (result.Success)
         {
-
-            message = result.Message;
-            user = new SignUpRequestDTO();
-            _toast.ShowToast(ToastIntent.Success, message);
+       
+            _dialogService.ShowInfo(result.Message, "Save");
         }
         else
         {
 
-            message = result.Message;
-            user = new SignUpRequestDTO();
-            _toast.ShowToast(ToastIntent.Success, message);
+            _dialogService.ShowWarning(result.Message, "Save");
         }
+        result = new();
+        init();
+        StateHasChanged();
 
         IsLoading = false;
     }
