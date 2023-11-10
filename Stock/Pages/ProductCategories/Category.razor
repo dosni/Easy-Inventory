@@ -1,11 +1,9 @@
 ﻿@page "/Category"
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices;
-@using ServiceLayer.ProductCategoryServices.Concrete;
+
 
 <PageTitle>Category</PageTitle>
 
-@inject CategoryServices _CategoryServices
+
 
 
 <FluentHeader Style="background-color:none">
@@ -51,7 +49,7 @@
     {
         IsLoading = true;
         await Task.Delay(200);
-        cats = (await _CategoryServices.GetEFCategoryListAsycn()).AsQueryable();
+        cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
         IsLoading = false;
 
     }
@@ -79,7 +77,7 @@
             IsLoading = true;
             await Task.Delay(200);
             ServiceResponseDTO<bool> result = new();
-            result = await _CategoryServices.DeleteCategoryAsync(Id);
+            result = await _categoryServices.DeleteCategoryAsync(Id);
             IsLoading = false;
             if (result.Success == true)
             {

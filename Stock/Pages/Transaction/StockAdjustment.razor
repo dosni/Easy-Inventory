@@ -1,13 +1,7 @@
 ﻿@page "/stockAdjustment"
-@using Common;
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductService.Concrete;
-@using ServiceLayer.TransactionServices.Concrete;
-@using ServiceLayer.TransactionServices;
+
 
 <PageTitle>StockAdjustment</PageTitle>
-@inject TransactionServices _transactionServices
-@inject ProductServices _productDisplay
 
 @if (IsLoading == true)
 {

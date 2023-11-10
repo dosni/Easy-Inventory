@@ -3,7 +3,7 @@ using DataLayer.Context;
 using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
 using MySqlX.XDevAPI.Common;
-using ServiceLayer.Model;
+using ServiceLayer.ResponseServices;
 using ServiceLayer.ProductService;
 using ServiceLayer.ProductStockServices;
 using ServiceLayer.ProductStockServices.Concrete;

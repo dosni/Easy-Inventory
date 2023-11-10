@@ -1,12 +1,9 @@
 ﻿@page "/storeUpdate/{Id:int}/{loc}"
-@using ServiceLayer.Model;
-@using ServiceLayer.StoreServices;
-@using ServiceLayer.StoreServices.Concrete;
+
 
 <PageTitle>StoreUpdate</PageTitle>
 
-@inject StoreServices _storeServices
-@inject IDialogService _dialogService
+
 
 @if (IsLoading == true)
 {

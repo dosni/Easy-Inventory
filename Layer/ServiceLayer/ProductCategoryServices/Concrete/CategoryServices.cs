@@ -4,7 +4,7 @@ using DataLayer.EntityStock;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using ServiceLayer.Model;
+using ServiceLayer.ResponseServices;
 using System.Data;
 
 namespace ServiceLayer.ProductCategoryServices.Concrete

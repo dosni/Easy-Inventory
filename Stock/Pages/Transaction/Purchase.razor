@@ -1,18 +1,8 @@
 ﻿@page "/purchases"
-@using ServiceLayer.ContactServices;
-@using ServiceLayer.ContactServices.Concrete;
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductService.Concrete;
-@using ServiceLayer.TransactionServices.Concrete;
-@using ServiceLayer.TransactionServices;
-@using Common;
+
 
 <PageTitle>Purchase</PageTitle>
 
-@inject TransactionServices _transactionServices
-
-@inject ContactServices _contactServices
-@inject ProductServices _productDisplay
 
 
 @if (IsLoading == true)

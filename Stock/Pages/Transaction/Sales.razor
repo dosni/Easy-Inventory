@@ -1,18 +1,9 @@
 ﻿@page "/sales"
 
-@using ServiceLayer.ContactServices.Concrete;
-@using ServiceLayer.ContactServices;
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductService.Concrete;
-@using ServiceLayer.TransactionServices;
-@using Common;
-@using ServiceLayer.TransactionServices.Concrete;
+
 
 <PageTitle>Sales</PageTitle>
 
-@inject TransactionServices _transactionServices
-@inject ProductServices _productDisplay
-@inject ContactServices _contactServices
 
 
 @if (IsLoading == true)

@@ -1,16 +1,16 @@
 ﻿<FluentNavMenuLink Icon="@(new Icons.Regular.Size20.Home())" Href="/">
     <h6>Home</h6>
-</FluentNavMenuLink>
+   
+</FluentNavMenuLink> 
 <AuthorizeView>
     <Authorized>
-        <FluentNavMenuGroup InitiallyExpanded>
+        <FluentNavMenuGroup InitiallyExpanded=false>
             <h6>Identity</h6>
             <FluentNavMenuLink Href="./register" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Register" />
             <FluentNavMenuLink Href="./changepassword" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Change Password" />
-
         </FluentNavMenuGroup>
 
-        <FluentNavMenuGroup InitiallyExpanded>
+        <FluentNavMenuGroup InitiallyExpanded=false>
             <h6>Master Data</h6>
             <FluentNavMenuLink Href="./contact" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Contact" />
             <FluentNavMenuLink Href="./unit" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Unit" />
@@ -19,7 +19,7 @@
             <FluentNavMenuLink Href="./product" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Product" />
         </FluentNavMenuGroup>
 
-        <FluentNavMenuGroup InitiallyExpanded>
+        <FluentNavMenuGroup InitiallyExpanded=true>
             <h6>Transaksi</h6>
             <FluentNavMenuLink Href="./initialStock" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Initial Stock" />
             <FluentNavMenuLink Href="./purchases" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Purchases" />
@@ -28,7 +28,7 @@
             <FluentNavMenuLink Href="./stockTransfer" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Stock Transfer" />
         </FluentNavMenuGroup>
 
-        <FluentNavMenuGroup InitiallyExpanded>
+        <FluentNavMenuGroup InitiallyExpanded=false>
             <h6>Learning</h6>
             <FluentNavMenuLink Href="./selectCombo" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Select Combo" />
             <FluentNavMenuLink Href="./confirmation" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="confirmation" />
@@ -36,6 +36,6 @@
 
 
     </Authorized>
-    
+
 </AuthorizeView>
 

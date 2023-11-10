@@ -1,7 +1,7 @@
 ﻿using Common;
 using DataLayer.Context;
 using Microsoft.EntityFrameworkCore;
-using ServiceLayer.Model;
+using ServiceLayer.ResponseServices;
 using DataLayer.EntityStock;
 using productTransaction = DataLayer.EntityStock.Transaction;
 using ServiceLayer.ProductTransactionServices;

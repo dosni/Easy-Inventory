@@ -1,6 +1,6 @@
 ﻿using DataLayer.Context;
 using DataLayer.EntityStock;
-using ServiceLayer.Model;
+using ServiceLayer.ResponseServices;
 
 namespace ServiceLayer.UserServices.Concrete
 {

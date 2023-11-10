@@ -1,13 +1,11 @@
 ﻿@page "/categoryUpdate/{Id:int}/{category}"
 
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices;
-@using ServiceLayer.ProductCategoryServices.Concrete;
 
-@inject CategoryServices _CategoryServices
 
 
 <PageTitle>CategoryUpdate</PageTitle>
+
+
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
@@ -98,7 +96,7 @@
 
             ServiceResponseDTO<bool> result = new();
 
-            result = await _CategoryServices.UpdateAsync(a);
+            result = await _categoryServices.UpdateAsync(a);
 
             IsLoading = false;
             // berikan pesan

@@ -2,7 +2,7 @@
 using DataLayer.Context;
 using DataLayer.EntityStock;
 using Microsoft.AspNetCore.Identity;
-using ServiceLayer.Model;
+using ServiceLayer.ResponseServices;
 using System.Security.Claims;
 using static Common.Identity;
 

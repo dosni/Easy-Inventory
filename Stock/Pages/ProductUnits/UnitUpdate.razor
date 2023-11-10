@@ -1,11 +1,6 @@
 ﻿@page "/unitUpdate/{Id:int}/{unit}"
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductUnitServices.Concrete;
-@using ServiceLayer.ProductUnitServices;
-
 
 <PageTitle>UnitUpdate</PageTitle>
-@inject UnitServices _unitServices
 
 
 @if (IsLoading == true)

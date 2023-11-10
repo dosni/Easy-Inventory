@@ -1,12 +1,8 @@
 ﻿@page "/categoryCreate"
-@using DataLayer.EntityStock;
-@using ServiceLayer.Model;
-@using ServiceLayer.ProductCategoryServices.Concrete;
-@using ServiceLayer.ProductCategoryServices;
+
 
 <PageTitle>CategoryCreate</PageTitle>
 
-@inject CategoryServices _CategoryServices
 
 
 @if (IsLoading == true)
@@ -95,7 +91,7 @@
 
             ServiceResponseDTO<bool> result = new();
 
-            result = await _CategoryServices.CreateAsync(a);
+            result = await _categoryServices.CreateAsync(a);
 
             IsLoading = false;
             // berikan pesan

@@ -1,11 +1,9 @@
 ﻿@page "/contactCreate"
 @using ServiceLayer.ContactServices.Concrete;
 @using ServiceLayer.ContactServices;
-@using ServiceLayer.Model;
 
 <PageTitle>Contact Create</PageTitle>
 
-@inject ContactServices _contactServices
 
 @if (IsLoading == true)
 {

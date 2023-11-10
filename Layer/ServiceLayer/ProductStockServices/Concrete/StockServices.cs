@@ -1,7 +1,7 @@
 ﻿using DataLayer.Context;
 using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
-using ServiceLayer.Model;
+using ServiceLayer.ResponseServices;
 
 namespace ServiceLayer.ProductStockServices.Concrete
 {

@@ -8,17 +8,36 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Identity;
 @using Microsoft.JSInterop
+@using ServiceLayer.ContactServices.Concrete;
+@using ServiceLayer.ProductCategoryServices.Concrete;
+@using ServiceLayer.ProductService.Concrete;
+@using ServiceLayer.ProductUnitServices.Concrete;
+@using ServiceLayer.ProductUnitServices;
+@using ServiceLayer.StoreServices.Concrete;
+@using ServiceLayer.TransactionServices.Concrete;
 @using ServiceLayer.UserServices.Concrete;
 @using Stock
 @using Stock.Shared
 @using Microsoft.Fast.Components.FluentUI
 @using Microsoft.Fast.Components.FluentUI.DesignTokens
-@using ServiceLayer.Model;
 @using ServiceLayer.UserServices;
 @using Microsoft.AspNetCore.WebUtilities;
 @using ServiceLayer.Cookie;
 @using Common;
 @using System.Security.Claims;
+@using ServiceLayer.ResponseServices;
+@using ServiceLayer.ContactServices;
+@using ServiceLayer.ProductCategoryServices;
+
+@using ServiceLayer.ProductService;
+
+@using ServiceLayer.TransactionServices;
+
+
+@using ServiceLayer.ProductTransactionServices;
+@using ServiceLayer.ProductTransactionServices.Concrete;
+@using ServiceLayer.StoreServices;
+
 
 @inject NavigationManager _navman
 
@@ -28,4 +47,20 @@
 
 @inject UserManager<ApplicationUser> _userManager
 @inject SignInManager<ApplicationUser> _signInManager
+@inject CategoryServices _categoryServices
+@inject UnitServices _unitServices
+@inject ContactServices _contactServices
+@inject ProductServices _productServices
+@inject StoreServices _storeServices
+@inject TransactionServices _transactionServices
+@inject ProductServices _productDisplay
+
+@inject TransactionServices _initStockServices
+
+
+
+
+
+
+
 @inject UserServices _userServices;
