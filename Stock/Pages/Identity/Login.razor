@@ -1,0 +1,109 @@
+﻿@page "/login"
+
+
+<PageTitle>Sign In</PageTitle>
+
+@if (IsLoading)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+
+}
+
+<div style="padding: 1.5rem;">
+    <FluentLabel Typo="Typography.Header"> Login User </FluentLabel>
+    <br />
+    <EditForm Model="@user" OnValidSubmit="@LoginUser">
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+
+
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentTextField @bind-Value="user.UserName" style="width: 40%;">UserName</FluentTextField>
+            <FluentTextField @bind-Value="user.Password" TextFieldType="TextFieldType.Password" style="width: 40%;">Password</FluentTextField>
+            <FluentCheckbox @bind-Value=@rememberMe>Remember Me!</FluentCheckbox>
+        </FluentStack>
+        <br />
+        <FluentGrid Spacing="3" Justify="@Justification">
+            <FluentGridItem xs="12" sm="6">
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+            </FluentGridItem>
+
+        </FluentGrid>
+
+    </EditForm>
+
+</div>
+
+
+@code {
+
+    private bool IsLoading { get; set; }
+
+    string message = string.Empty;
+    bool rememberMe = true;
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+
+    // public string Errors { get; set; }
+
+    private string returnUrl = string.Empty;
+
+
+    private SignInRequest<ApplicationUser> user { get; set; } = new SignInRequest<ApplicationUser>();
+
+
+    ServiceResponseDTO<string> result { get; set; }
+
+
+
+    protected override void OnInitialized()
+    {
+        var uri = _navman.ToAbsoluteUri(_navman.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
+        {
+            returnUrl = url;
+        }
+    }
+
+
+
+    async Task LoginUser()
+    {
+
+        IsLoading = true;
+        
+        result = new();
+        user.RememberMe = rememberMe; // tambahkan remember me kepada user
+        result = await _userServices.SignIn(user);
+        
+        if (result.Success)
+        {
+          
+
+            Guid key = BlazorCookieLoginMiddleware<ApplicationUser>.AnnounceLogin(user);
+            _navman.NavigateTo($"/login?key={key}", true);
+
+        }
+        else
+        {
+       
+            ShowInformation(); 
+
+
+           message = result.Message;
+            user = new SignInRequest<ApplicationUser>();
+
+        }
+
+        IsLoading = false;
+    }
+   
+    private void ShowInformation()
+    {
+       
+        _dialogService.ShowInfo("Login gagal", "Authentication");
+    }
+
+}

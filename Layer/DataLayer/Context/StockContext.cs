@@ -15,6 +15,7 @@ namespace DataLayer.Context
         {
             modelBuilder.ApplyConfiguration(new ApplicationRoleConfig());
             modelBuilder.ApplyConfiguration(new ApplicationUserConfig());
+            modelBuilder.ApplyConfiguration(new ApplicationActivityConfig());
 
             modelBuilder.ApplyConfiguration(new ProductCategoryConfig());
             modelBuilder.ApplyConfiguration(new ProductUnitConfig());
@@ -68,6 +69,7 @@ namespace DataLayer.Context
 
         public DbSet<ApplicationRole> ApplicationRoles { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<ApplicationActivity> ApplicationActivities { get; set; }
 
     }
 }

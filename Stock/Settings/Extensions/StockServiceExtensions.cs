@@ -6,6 +6,7 @@ using ServiceLayer.ProductTransactionServices.Concrete;
 using ServiceLayer.ProductUnitServices.Concrete;
 using ServiceLayer.StoreServices.Concrete;
 using ServiceLayer.TransactionServices.Concrete;
+using ServiceLayer.UserServices.Concrete;
 using System.Transactions;
 
 namespace Stock.Settings.Extensions
@@ -26,6 +27,9 @@ namespace Stock.Settings.Extensions
 
             services.AddScoped<TransactionServices>();
             services.AddScoped<TransactionLineServices>();
+
+           services.AddScoped<UserServices>();
+           services.AddScoped<UserLogServices>();
         }
     }
 }

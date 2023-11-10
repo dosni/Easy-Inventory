@@ -1,18 +1,31 @@
 ﻿@using System.Net.Http
+@using DataLayer.EntityStock;
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Identity;
 @using Microsoft.JSInterop
+@using ServiceLayer.UserServices.Concrete;
 @using Stock
 @using Stock.Shared
 @using Microsoft.Fast.Components.FluentUI
 @using Microsoft.Fast.Components.FluentUI.DesignTokens
-
+@using ServiceLayer.Model;
+@using ServiceLayer.UserServices;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ServiceLayer.Cookie;
+@using Common;
+@using System.Security.Claims;
 
 @inject NavigationManager _navman
 
 @inject IJSRuntime jsruntime
 @inject IDialogService _dialogService
+@inject IToastService _toast;
+
+@inject UserManager<ApplicationUser> _userManager
+@inject SignInManager<ApplicationUser> _signInManager
+@inject UserServices _userServices;

@@ -1,28 +1,41 @@
 ﻿<FluentNavMenuLink Icon="@(new Icons.Regular.Size20.Home())" Href="/">
     <h6>Home</h6>
 </FluentNavMenuLink>
+<AuthorizeView>
+    <Authorized>
+        <FluentNavMenuGroup InitiallyExpanded>
+            <h6>Identity</h6>
+            <FluentNavMenuLink Href="./register" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Register" />
+            <FluentNavMenuLink Href="./changepassword" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Change Password" />
 
-<FluentNavMenuGroup InitiallyExpanded>
-    <h6>Master Data</h6>
-    <FluentNavMenuLink Href="./contact" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Contact" />
-    <FluentNavMenuLink Href="./unit" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Unit" />
-    <FluentNavMenuLink Href="./Category" Icon="@(new Icons.Regular.Size20.GroupList())" Text="Category" />
-    <FluentNavMenuLink Href="./store" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Location" />
-    <FluentNavMenuLink Href="./product" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Product" />
-</FluentNavMenuGroup>
+        </FluentNavMenuGroup>
 
-<FluentNavMenuGroup InitiallyExpanded>
-    <h6>Transaksi</h6>
-    <FluentNavMenuLink Href="./initialStock" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Initial Stock" />
-    <FluentNavMenuLink Href="./purchases" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Purchases" />
-    <FluentNavMenuLink Href="./sales" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Sales" />
-    <FluentNavMenuLink Href="./stockAdjustment" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Stock Adjustment" />
-    <FluentNavMenuLink Href="./stockTransfer" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Stock Transfer" />
-</FluentNavMenuGroup>
+        <FluentNavMenuGroup InitiallyExpanded>
+            <h6>Master Data</h6>
+            <FluentNavMenuLink Href="./contact" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Contact" />
+            <FluentNavMenuLink Href="./unit" Icon="@(new Icons.Regular.Size20.AppsList())" Text="Unit" />
+            <FluentNavMenuLink Href="./Category" Icon="@(new Icons.Regular.Size20.GroupList())" Text="Category" />
+            <FluentNavMenuLink Href="./store" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Location" />
+            <FluentNavMenuLink Href="./product" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Product" />
+        </FluentNavMenuGroup>
 
-<FluentNavMenuGroup InitiallyExpanded>
-    <h6>Learning</h6>
-    <FluentNavMenuLink Href="./selectCombo" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Select Combo" />
-    <FluentNavMenuLink Href="./confirmation" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="confirmation" />
-</FluentNavMenuGroup>
+        <FluentNavMenuGroup InitiallyExpanded>
+            <h6>Transaksi</h6>
+            <FluentNavMenuLink Href="./initialStock" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Initial Stock" />
+            <FluentNavMenuLink Href="./purchases" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Purchases" />
+            <FluentNavMenuLink Href="./sales" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Sales" />
+            <FluentNavMenuLink Href="./stockAdjustment" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Stock Adjustment" />
+            <FluentNavMenuLink Href="./stockTransfer" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Stock Transfer" />
+        </FluentNavMenuGroup>
+
+        <FluentNavMenuGroup InitiallyExpanded>
+            <h6>Learning</h6>
+            <FluentNavMenuLink Href="./selectCombo" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="Select Combo" />
+            <FluentNavMenuLink Href="./confirmation" Icon="@(new Icons.Regular.Size20.AppsListDetail())" Text="confirmation" />
+        </FluentNavMenuGroup>
+
+
+    </Authorized>
+    
+</AuthorizeView>
 

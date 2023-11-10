@@ -1,0 +1,26 @@
+﻿
+<AuthorizeView>
+    <Authorized>
+        <i>@context.User.Identity.Name.Trim()</i>
+        <form method="post" action="Identity/Account/Logout">  
+            <FluentButton BackgroundColor="var(--inherit-bg)" Title="Logout" Type="ButtonType.Submit">
+                <FluentIcon Value="@(new Icons.Regular.Size24.LockOpen())" Color="Color.Lightweight" Slot="start" />
+            </FluentButton>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+     @*    <FluentButton IconEnd="@(new Icons.Regular.Size24.LockClosed())" BackgroundColor="var(--highlight-bg)" Title="Login" OnClick="@(() => GetLink())" /> *@
+        <FluentButton BackgroundColor="var(--inherit-bg)" Title="Login" OnClick="@(() => GetLink())">
+            <FluentIcon Value="@(new Icons.Regular.Size24.LockClosed())" Color="Color.Lightweight" Slot="start" />
+        </FluentButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    string? selectValue;
+    private void GetLink()
+    {
+        _navman.NavigateTo("./Login");
+    }
+
+}

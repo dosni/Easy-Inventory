@@ -1,0 +1,148 @@
+﻿@page "/register"
+
+
+
+
+
+
+@*
+@attribute [Authorize(Policy = "Admin")]
+
+ *@
+
+@if (IsLoading)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+
+}
+<div style="padding: 1.5rem;">
+    <FluentLabel Typo="Typography.Header"> Signup User </FluentLabel>
+    <br />
+    <EditForm Model="@user" OnValidSubmit="@HandleRegistration">
+        <DataAnnotationsValidator />
+        <FluentValidationSummary />
+
+
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentGrid Spacing="0">
+                <FluentGridItem xs="12">
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextField Appearance="FluentInputAppearance.Filled" @bind-Value="user.UserName" Readonly=false Placeholder="User Name"></FluentTextField>
+                        </FluentGridItem>
+                    </FluentGrid>
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextField @bind-Value="user.Password" TextFieldType="TextFieldType.Password">Password</FluentTextField>
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentTextField @bind-Value="user.ConfirmPassword" TextFieldType="TextFieldType.Password">Confirm Password</FluentTextField>
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <FluentGrid>
+                        <FluentGridItem xs="6">
+                            <FluentCombobox Items=@stringOptionsRole
+                                            OptionText="@(i => i.Text)"
+                                            OptionValue="@(i => i.Value)"
+                                            OptionSelected="@(i => i.Selected)"
+                            @bind-Value="@stringValue" />
+
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                </FluentGridItem>
+            </FluentGrid>
+
+
+
+
+            @*    <p> Pilih Role User </p>
+            <FluentSelect @bind-Value="@selectValue" TOption="string">
+            <FluentOption>Admin</FluentOption>
+            <FluentOption>CS</FluentOption>
+            <FluentOption>User</FluentOption>
+            </FluentSelect> *@
+
+            <br />
+        </FluentStack>
+        <br />
+        <FluentGrid Spacing="3" Justify="JustifyContent.FlexStart">
+            <FluentGridItem xs="12" sm="6">
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Submit</FluentButton>
+            </FluentGridItem>
+
+        </FluentGrid>
+
+    </EditForm>
+</div>
+
+
+
+@code {
+
+    private bool IsLoading { get; set; }
+    string? selectValue = "User";
+    string? stringValue;
+
+    SignUpRequestDTO user = new SignUpRequestDTO();
+
+    //show / hide password
+
+    bool isShow;
+    string message = "";
+
+    ServiceResponseDTO<string> result { get; set; }
+
+    static List<Option<string>> stringOptionsRole = new()
+    {
+
+        { new Option<string> { Value = "1", Text = "User", Selected=true } },
+        { new Option<string> { Value = "2", Text = "CS" } },
+        { new Option<string> { Value = "3", Text = "Admin" } }
+
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        user.Role = "User";
+
+    }
+
+    async Task HandleRegistration()
+    {
+
+        IsLoading = true;
+        // user boleh membuat user tanpa email dan password
+
+        result = new();
+
+
+        result = await _userServices.RegisterUser(user);
+
+
+        if (result.Success)
+        {
+
+            message = result.Message;
+            user = new SignUpRequestDTO();
+            _toast.ShowToast(ToastIntent.Success, message);
+        }
+        else
+        {
+
+            message = result.Message;
+            user = new SignUpRequestDTO();
+            _toast.ShowToast(ToastIntent.Success, message);
+        }
+
+        IsLoading = false;
+    }
+}
+
