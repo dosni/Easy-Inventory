@@ -133,8 +133,10 @@ namespace ServiceLayer.UserServices.Concrete
                 {
                     if (result.Succeeded)
                     {
+                        message = SD.Register.SiginSuccess;
                         response.Success = true;
-                        response.Message = "Berhasil";
+                        response.Message = message;
+                        await createLog(userName, message);
                     }
                     else
                     {

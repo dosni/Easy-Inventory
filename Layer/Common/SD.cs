@@ -38,6 +38,7 @@ namespace Common
         {
             public const string UserFound = "User Name telah ada";
             public const string RegisterSuccess = "Pendaftaran berhasil";
+            public const string SiginSuccess = "SignIn Berhasil";
             public const string SiginFailed = "Password atau UserName salah";
             public const string SignUpModelNotValid = "Input Email atau Phone tidak valid";
             public const string DataDuplikat = "Data tidak bisa disimpan karena data sudah ada.";
