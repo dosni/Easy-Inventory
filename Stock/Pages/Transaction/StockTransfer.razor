@@ -94,7 +94,7 @@ else
 {
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
 
-
+    <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
     <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.3fr 0.2fr  0.2fr 0.2fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
@@ -126,6 +126,9 @@ else
     private bool showProduct = false;
 
     IQueryable<ProductDisplayDto>? productDisplays;
+    IQueryable<ProductDisplayDto>? productInits;
+
+
     List<TransferLineDto> productSelected = new List<TransferLineDto>();
     IQueryable<TransferLineDto>? productLines;
     bool? canceled;
@@ -142,6 +145,12 @@ else
     Option<string> selectedLocationToId = default!;
     string? stringLocationToSelect = "(Select Location From)";
     private int StoreToId;
+
+    private void FilterNames(string filter)
+    {
+        productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
+        StateHasChanged();
+    }
 
     string? stringLocationFrom
     {
@@ -187,8 +196,8 @@ else
     {
 
         await Task.Delay(100);
-        productDisplays = (await _productDisplay.GetProductTransferSelectionAsycn(StoreFromId)).AsQueryable();
-
+        productInits = (await _productDisplay.GetProductTransferSelectionAsycn(StoreFromId)).AsQueryable();
+        productDisplays = productInits;
         StateHasChanged();
 
 

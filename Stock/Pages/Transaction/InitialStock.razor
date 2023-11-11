@@ -79,7 +79,7 @@ else
 {
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
 
-
+    <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
     <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr  0.2fr 0.3fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
@@ -112,6 +112,7 @@ else
     public TransactionDto model { get; set; }
 
     IQueryable<ProductDisplayDto>? productDisplays;
+    IQueryable<ProductDisplayDto>? productInits;
 
     private int LocationId { get; set; }
 
@@ -121,7 +122,11 @@ else
 
 
     JustifyContent Justification = JustifyContent.FlexStart;
-
+    private void FilterNames(string filter)
+    {
+        productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
         try
@@ -132,8 +137,8 @@ else
             LocationId = loc.Result;
 
 
-            productDisplays = (await _productDisplay.GetInitialProductSelectionAsycn(LocationId)).AsQueryable();
-
+            productInits = (await _productDisplay.GetInitialProductSelectionAsycn(LocationId)).AsQueryable();
+            productDisplays = productInits;
 
             init();
 
@@ -272,7 +277,8 @@ else
             init();
 
             // show update data for product display
-            productDisplays = (await _productDisplay.GetInitialProductSelectionAsycn(LocationId)).AsQueryable();
+            productInits = (await _productDisplay.GetInitialProductSelectionAsycn(LocationId)).AsQueryable();
+            productDisplays = productInits;
             StateHasChanged();
 
         }

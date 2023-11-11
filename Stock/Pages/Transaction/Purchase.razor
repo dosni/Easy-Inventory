@@ -92,7 +92,7 @@
 else
 {
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
-
+    <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
     <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
@@ -117,6 +117,7 @@ else
     public TransactionDto model { get; set; }
 
     IQueryable<ProductDisplayDto>? productDisplays;
+    IQueryable<ProductDisplayDto>? productInits;
     private int LocationId { get; set; }
 
     List<TransactionLineDto> productSelected = new List<TransactionLineDto>();
@@ -133,7 +134,11 @@ else
     string? stringTypeSelect = "Purchase";
 
     JustifyContent Justification = JustifyContent.FlexStart;
-
+    private void FilterNames(string filter)
+    {
+        productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
+        StateHasChanged();
+    }
     string? stringType
     {
         get
@@ -167,7 +172,9 @@ else
             LocationId = loc.Result;
 
 
-            productDisplays = (await _productDisplay.GetProducPurchasetSelectionAsycn()).AsQueryable();
+            productInits = (await _productDisplay.GetProducPurchasetSelectionAsycn()).AsQueryable();
+            productDisplays = productInits;
+
             contacts = (await _contactServices.GetSupplierListAsycn()).AsQueryable();
 
             stringOptionsType = new()
@@ -350,7 +357,8 @@ else
 
             result = new();
             init();
-            productDisplays = (await _productDisplay.GetProducPurchasetSelectionAsycn()).AsQueryable();
+            productInits = (await _productDisplay.GetProducPurchasetSelectionAsycn()).AsQueryable();
+            productDisplays = productInits;
             StateHasChanged();
 
         }
