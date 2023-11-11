@@ -18,6 +18,8 @@
 }
 @if (contacts != null)
 {
+      <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
+
     <FluentDataGrid Items="@contacts" ResizableColumns=true GridTemplateColumns="0.2fr 0.2fr 0.6fr 0.3fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
@@ -38,9 +40,17 @@
     private bool IsLoading { get; set; } = false;
 
     IQueryable<ContactDto>? contacts;
+    IQueryable<ContactDto>? contactInits;
     bool? canceled;
 
     JustifyContent Justification = JustifyContent.FlexStart;
+
+    private void FilterNames(string filter)
+    {
+        contacts = contactInits.Where(p => p.Name.ToLower().Contains(filter.ToLower()));
+        StateHasChanged();
+    }
+
     private void GetLink()
     {
         _navman.NavigateTo("/contactCreate");
@@ -54,7 +64,8 @@
     {
         IsLoading = true;
 
-        contacts = (await _contactServices.GetContactListAsycn()).AsQueryable();
+        contactInits = (await _contactServices.GetContactListAsycn()).AsQueryable();
+        contacts = contactInits;
         IsLoading = false;
     }
 

@@ -20,6 +20,8 @@
 }
 @if (products != null)
 {
+    <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
+
     <FluentDataGrid Items="@products" ResizableColumns=true GridTemplateColumns="0.5fr 0.4fr 0.4fr 0.6fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
@@ -40,9 +42,16 @@
 @code {
     private bool IsLoading { get; set; } = false;
     IQueryable<ProductDto>? products;
+    IQueryable<ProductDto>? productInits;
+
     bool? canceled;
     JustifyContent Justification = JustifyContent.FlexStart;
 
+    private void FilterNames(string filter)
+    {
+        products = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
+        StateHasChanged();
+    }
     private void GetLink()
     {
         _navman.NavigateTo("/productCreate");
@@ -55,8 +64,9 @@
     private async Task Loading()
     {
         IsLoading = true;
-      //  await Task.Delay(200);
-        products = (await _productServices.GetProductListAsycn()).AsQueryable();
+        //  await Task.Delay(200);
+        productInits = (await _productServices.GetProductListAsycn()).AsQueryable();
+        products = productInits;
         IsLoading = false;
     }
 

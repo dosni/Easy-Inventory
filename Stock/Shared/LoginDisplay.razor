@@ -9,8 +9,7 @@
         </form>
     </Authorized>
     <NotAuthorized>
-     @*    <FluentButton IconEnd="@(new Icons.Regular.Size24.LockClosed())" BackgroundColor="var(--highlight-bg)" Title="Login" OnClick="@(() => GetLink())" /> *@
-        <FluentButton BackgroundColor="var(--inherit-bg)" Title="Login" OnClick="@(() => GetLink())">
+           <FluentButton BackgroundColor="var(--inherit-bg)" Title="Login" OnClick="@(() => GetLink())">
             <FluentIcon Value="@(new Icons.Regular.Size24.LockClosed())" Color="Color.Lightweight" Slot="start" />
         </FluentButton>
     </NotAuthorized>
