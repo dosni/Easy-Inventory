@@ -74,7 +74,7 @@
 @if (showProduct == false)
 {
 
-    <FluentDataGrid Items="@productLines" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr"
+    <FluentDataGrid Items="@productLines" ResizableColumns=true GridTemplateColumns="0.4fr 0.6fr 0.3fr 0.3fr 0.3fr"
                     style="height: 200px;overflow:auto;">
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" />
@@ -98,8 +98,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
-    @*     <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" /> *@
-        <TemplateColumn Title="Qty">
+         <TemplateColumn Title="Qty">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
