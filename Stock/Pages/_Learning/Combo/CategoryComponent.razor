@@ -1,0 +1,130 @@
+﻿@page "/selectCategoryComponent"
+
+<PageTitle>SelectCategory</PageTitle>
+
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+
+@if(cats != null)
+{
+    <div style="margin-left:10px;height:360px">
+    <FluentGrid>
+        <FluentGridItem xs="6">
+
+          
+
+                <Stock.Pages.Component.ComboSelect Items="@stringOptionsCat"
+                                                   OnSelectedOptionChanged="HandleSelectedOptionChanged"
+                                                   OnSelectedValueChanged="HandleSelectedValueChanged" />
+
+
+        </FluentGridItem>
+    </FluentGrid>
+</div>
+
+}
+
+@code {
+    private bool IsLoading { get; set; } = false;
+
+
+
+    List<Option<string>> stringOptionsCat = new();
+    string? stringCategory = "(Select Category)";
+    Option<string> selectedCategoryId = default!;
+
+
+
+    IQueryable<CategoryDto>? cats;
+
+
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+
+
+    // private IEnumerable<ComboBoxItem> stringOptionsCat = // your data here
+    // private string selectedCategoryId;
+
+    private void HandleSelectedOptionChanged(Option<string> value)
+    {
+        // Handle the selected option changed event
+        // You can perform any additional logic here
+        try
+        {
+            selectedCategoryId = value;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return;
+        }
+    
+    }
+
+    private void HandleSelectedValueChanged(string value)
+    {
+        // Handle the selected value changed event
+        // You can perform any additional logic here
+     
+
+
+        try
+        {
+            stringCategory = value;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+             return;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+       
+
+        try
+        {
+            IsLoading = true;
+
+            base.OnInitialized();
+            cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
+
+            stringOptionsCat.Add(new Option<string>
+                {
+                    Value = "0",
+                    Text = "(Select Category)",
+                    Selected = true // You can set this based on your logic
+                });
+
+
+            foreach (var item in cats)
+            {
+                stringOptionsCat.Add(new Option<string>
+                    {
+                        Value = item.CategoryId.ToString(), // Assuming CategoryId is an integer
+                        Text = item.Category,
+                        Selected = false // You can set this based on your logic
+                    });
+            }
+
+
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            IsLoading = false;
+            return;
+        }
+
+
+
+
+    }
+}

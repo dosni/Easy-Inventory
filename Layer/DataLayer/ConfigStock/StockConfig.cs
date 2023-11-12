@@ -1,11 +1,6 @@
 ﻿using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 // https://learn.microsoft.com/en-us/ef/core/modeling/relationships/many-to-many

@@ -1,7 +1,6 @@
 ﻿using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
 
 namespace DataLayer.ConfigStock
 {
@@ -19,7 +18,7 @@ namespace DataLayer.ConfigStock
             builder.Property(b => b.SecurityStamp).HasColumnType("varchar(256)");
             builder.Property(b => b.ConcurrencyStamp).HasColumnType("varchar(256)");
             builder.Property(b => b.PhoneNumber).HasColumnType("varchar(16)");
-          
+
         }
     }
 }

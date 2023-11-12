@@ -1,15 +1,9 @@
-﻿using Dapper;
-using DataLayer.Context;
+﻿using DataLayer.Context;
 using DataLayer.EntityStock;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.Data.MySqlClient;
 using ServiceLayer.ResponseServices;
-using ServiceLayer.StoreServices;
 using ServiceLayer.TransactionServices;
-using System;
 using System.Data;
-using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 
 namespace ServiceLayer.ProductService.Concrete
 {
@@ -337,7 +331,7 @@ namespace ServiceLayer.ProductService.Concrete
                 return null;
             }
         }
-      
+
         /// <summary>
         /// Mendapatkan Stok dari Lokasi
         /// </summary>

@@ -1,0 +1,37 @@
+﻿
+<FluentCombobox Items="@Items"
+                OptionText="@(i => i.Text)"
+                OptionValue="@(i => i.Value)"
+@bind-SelectedOption="@SelectedOption"
+@bind-Value="@SelectedValue" />
+
+@code {
+    [Parameter]
+    public List<Option<string>> Items { get; set; }
+    
+    [Parameter] public string? InitialSelectedValue { get; set; } = "(Select Value)";
+    [Parameter] public EventCallback<Option<string>> OnSelectedOptionChanged { get; set; }
+    [Parameter] public EventCallback<string> OnSelectedValueChanged { get; set; }
+
+    private Option<string> SelectedOption { get; set; } = default!;
+    private string? SelectedValue { get; set; } = "(Select Value)";
+ 
+  
+    private async Task OnSelectedOptionChangedHandler(Option<string> value)
+    {
+        SelectedOption = value;
+        await OnSelectedOptionChanged.InvokeAsync(value);
+    }
+
+    private async Task OnSelectedValueChangedHandler(string value)
+    {
+        SelectedValue = value;
+        await OnSelectedValueChanged.InvokeAsync(value);
+    }
+
+    protected override void OnInitialized()
+    {
+       // SelectedValue = InitialSelectedValue;
+    }
+}
+

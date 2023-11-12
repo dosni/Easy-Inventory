@@ -1,0 +1,69 @@
+﻿@page "/selectCategory"
+
+<PageTitle>SelectCategory</PageTitle>
+@if (IsLoading == true)
+{
+    <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
+        <FluentProgress></FluentProgress>
+    </div>
+}
+<div style="margin-left:10px;height:360px">
+    <FluentGrid>
+        <FluentGridItem xs="6">
+            <FluentCombobox Items=@stringOptionsCat
+                            OptionText="@(i => i.Text)"
+                            OptionValue="@(i => i.Value)"
+                            OptionSelected="@(i => i.Selected)"
+            @bind-SelectedOption="@selectedCategoryId"
+            @bind-Value="@stringCategory" />
+        </FluentGridItem>
+    </FluentGrid>
+</div>
+
+@code {
+    private bool IsLoading { get; set; } = false;
+  
+    List<Option<string>> stringOptionsCat = new();
+    string? stringCategory = "(Select Category)";
+    Option<string> selectedCategoryId = default!;
+
+   
+
+    IQueryable<CategoryDto>? cats;
+   
+
+
+    JustifyContent Justification = JustifyContent.FlexStart;
+    protected override async Task OnInitializedAsync()
+    {
+
+        base.OnInitialized();
+        IsLoading = true;
+     
+
+        cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
+
+        stringOptionsCat.Add(new Option<string>
+            {
+                Value = "0",
+                Text = "(Select Category)",
+                Selected = true // You can set this based on your logic
+            });
+
+  
+        foreach (var item in cats)
+        {
+            stringOptionsCat.Add(new Option<string>
+                {
+                    Value = item.CategoryId.ToString(), // Assuming CategoryId is an integer
+                    Text = item.Category,
+                    Selected = false // You can set this based on your logic
+                });
+        }
+
+
+        IsLoading = false;
+
+
+    }
+}

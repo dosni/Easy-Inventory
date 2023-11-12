@@ -122,11 +122,13 @@ else
 
 
     JustifyContent Justification = JustifyContent.FlexStart;
+    
     private void FilterNames(string filter)
     {
         productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
         StateHasChanged();
     }
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -154,6 +156,8 @@ else
     {
         showProduct = flg;
     }
+
+
     private async void Delete(int Id)
     {
         try
