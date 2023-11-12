@@ -7,30 +7,30 @@
         <FluentProgress></FluentProgress>
     </div>
 }
-<div style="margin-left:10px;height:360px">
-    <FluentGrid>
-        <FluentGridItem xs="6">
-            <FluentCombobox Items=@stringOptionsCat
-                            OptionText="@(i => i.Text)"
-                            OptionValue="@(i => i.Value)"
-                            OptionSelected="@(i => i.Selected)"
-            @bind-SelectedOption="@selectedCategoryId"
-            @bind-Value="@stringCategory" />
-        </FluentGridItem>
-    </FluentGrid>
-</div>
+
+<FluentGrid>
+    <FluentGridItem xs="6">
+        <FluentCombobox Items=@stringOptionsCat
+                        OptionText="@(i => i.Text)"
+                        OptionValue="@(i => i.Value)"
+                        OptionSelected="@(i => i.Selected)"
+        @bind-SelectedOption="@selectedCategoryId"
+        @bind-Value="@stringCategory" />
+    </FluentGridItem>
+</FluentGrid>
+
 
 @code {
     private bool IsLoading { get; set; } = false;
-  
+
     List<Option<string>> stringOptionsCat = new();
     string? stringCategory = "(Select Category)";
     Option<string> selectedCategoryId = default!;
 
-   
+
 
     IQueryable<CategoryDto>? cats;
-   
+
 
 
     JustifyContent Justification = JustifyContent.FlexStart;
@@ -39,7 +39,7 @@
 
         base.OnInitialized();
         IsLoading = true;
-     
+
 
         cats = (await _categoryServices.GetEFCategoryListAsycn()).AsQueryable();
 
@@ -50,7 +50,7 @@
                 Selected = true // You can set this based on your logic
             });
 
-  
+
         foreach (var item in cats)
         {
             stringOptionsCat.Add(new Option<string>

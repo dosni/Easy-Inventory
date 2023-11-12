@@ -1,4 +1,4 @@
-﻿@page "/purchases"
+﻿@page "/purchases2"
 
 
 <PageTitle>Purchase</PageTitle>
@@ -26,15 +26,12 @@
                     <FluentGridItem xs="12">
                         <FluentGrid>
                             <FluentGridItem xs="6">
-                               @*  <Stock.Pages.Component.ComboSelect Items="@stringOptionsType"
-                                                                   OnSelectedOptionChanged="HandleSelectedTypeOptionChanged"
-                                                                   OnSelectedValueChanged="HandleSelectedTypeValueChanged" /> *@
-                                <div>
-                                    <FluentRadioGroup Name="Transaction" @bind-Value=stringType Label="Transaction">
-                                        <FluentRadio Value=@("20")>Purchase</FluentRadio>
-                                        <FluentRadio Value=@("25")>Purchase Return</FluentRadio>
-                                    </FluentRadioGroup>
-                                </div>
+                                <FluentCombobox Items=@stringOptionsType
+                                                OptionText="@(i => i.Text)"
+                                                OptionValue="@(i => i.Value)"
+                                                OptionSelected="@(i => i.Selected)"
+                                @bind-SelectedOption="@selectedTypeId"
+                                @bind-Value="@stringType" />
                             </FluentGridItem>
                         </FluentGrid>
                         <FluentGrid>
@@ -50,12 +47,12 @@
                                                 OptionValue="@(i => i.Value)"
                                                 OptionSelected="@(i => i.Selected)"
                                 @bind-SelectedOption="@selectedSupplierId"
-                                @bind-Value="@stringSupplier" />
+                                @bind-Value="@stringSupplier"/>
                             </FluentGridItem>
                         </FluentGrid>
                         <FluentGrid>
                             <FluentGridItem xs="6">
-                                <FluentTextArea @bind-Value="model.Description" Rows="3" Cols="80">Description</FluentTextArea>
+                                <FluentTextArea @bind-Value="model.Description" Rows="3" Cols="80">Keterangan</FluentTextArea>
                             </FluentGridItem>
                         </FluentGrid>
                     </FluentGridItem>
@@ -101,7 +98,7 @@ else
 
         <PropertyColumn Property="@(c => c.ProductName)" Title="Product Name" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.SKU)" Title="SKU" Align="Align.Start" Sortable="true" />
-        <TemplateColumn Title="Qty">
+         <TemplateColumn Title="Qty">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
@@ -132,9 +129,9 @@ else
     string? stringSupplier = "(Select Supplier)";
     Option<string> selectedSupplierId = default!;
 
-    // List<Option<string>> stringOptionsType = new();
-    // Option<string> selectedTypeId = default!;
-    string stringTypeSelect = ((int)TransactionType.Purchase).ToString();
+    List<Option<string>> stringOptionsType = new();
+    Option<string> selectedTypeId = default!;
+    string? stringTypeSelect = "Purchase";
 
     JustifyContent Justification = JustifyContent.FlexStart;
     private void FilterNames(string filter)
@@ -142,50 +139,7 @@ else
         productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
         StateHasChanged();
     }
-    // private void HandleSelectedTypeOptionChanged(Option<string> value)
-    // {
-    //     // Handle the selected option changed event
-    //     // You can perform any additional logic here
-    //     try
-    //     {
-    //         selectedTypeId = value;
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         string msg = ex.Message;
-    //         return;
-    //     }
-
-    // }
-
-    // private void HandleSelectedTypeValueChanged(string value)
-    // {
-    //     // Handle the selected value changed event
-    //     // You can perform any additional logic here
-
-
-
-    //     try
-    //     {
-    //         stringTypeSelect = value;
-    //         if (stringTypeSelect == "Purchases")
-    //         {
-    //             model.Description = "Purchases Product";
-    //         }
-    //         else
-    //         {
-    //             model.Description = "Purchases Return Product";
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         string msg = ex.Message;
-    //         return;
-    //     }
-    // }
-
-    string stringType
+    string? stringType
     {
         get
         {
@@ -195,7 +149,7 @@ else
         {
             stringTypeSelect = value;
 
-            if (stringTypeSelect == ((int)TransactionType.Purchase).ToString())
+            if (stringTypeSelect == "Purchases")
             {
                 model.Description = "Purchases Product";
             }
@@ -213,7 +167,7 @@ else
             base.OnInitialized();
             IsLoading = true;
 
-            // selectedTypeId = default!;
+            selectedTypeId=default!;
             var loc = _userContext.GetLocationId();
             LocationId = loc.Result;
 
@@ -223,18 +177,16 @@ else
 
             contacts = (await _contactServices.GetSupplierListAsycn()).AsQueryable();
 
-            // stringOptionsType = new()
-            //     {
-
-            //          { new Option<string> { Value = "20", Text = "Purchases", Selected = true} },
-            //          { new Option<string> { Value = "25", Text = "Purchases Return", Selected = false} }
-            //      };
-
+            stringOptionsType = new()
+                {
+                    { new Option<string> { Value = "20", Text = "Purchases", Selected = true} },
+                    { new Option<string> { Value = "25", Text = "Purchases Return", Selected = false} }
+                 };
 
             stringOptionsSupplier.Add(new Option<string>
                 {
                     Value = "0",
-                    Text = "(Select a Value)",
+                    Text = "(Select Supplier)",
                     Selected = true // You can set this based on your logic
                 });
             foreach (var item in contacts)
@@ -259,7 +211,7 @@ else
     {
         model = new TransactionDto();
 
-        model.TransactionType = ((int)TransactionType.Purchase).ToString();
+        model.TransactionType = ((int)TransactionType.Purchase).ToString(); 
         model.TransactionDate = DateTime.Today;
         model.Description = "Purchases Product";
         model.CreatedBy = "Admin";
@@ -274,7 +226,7 @@ else
     {
         showProduct = flg;
     }
-
+   
     private async void Delete(int Id)
     {
         try
@@ -297,12 +249,6 @@ else
     private async void Add(int Id)
     {
 
-        // if (selectedTypeId == null)
-        // {
-        //     _dialogService.ShowInfo("Select Transaction Type", "Qty Available");
-        //     return;
-        // }
-
         // Find the product with the specified Id in the productDisplays collection
         var selectedProduct = productDisplays.FirstOrDefault(p => p.SkuId == Id);
 
@@ -322,9 +268,8 @@ else
                 }
 
             }
-
             // cek untuk penjualan apakah jumlah melebih stock. Untuk pengembalian penjualan tidak perlu di cek
-            if (stringTypeSelect == ((int)TransactionType.Purchase_Return).ToString())
+            if (selectedTypeId.Value == ((int)TransactionType.Purchase_Return).ToString())
             {
                 if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
                 {
@@ -343,7 +288,7 @@ else
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
                     StoreId = LocationId,
-                    TransactionType = stringTypeSelect,
+                    TransactionType = selectedTypeId.Value,
                     Qty = selectedProduct.Qty,
                     Price = selectedProduct.Price
 
@@ -367,11 +312,7 @@ else
 
         try
         {
-            // if (stringTypeSelect ==string.Empty)
-            // {
-            //     _dialogService.ShowInfo("Select Transaction Type", "Save");
-            //     return;
-            // }
+
             if (stringSupplier == "(Select Supplier)")
             {
                 _dialogService.ShowInfo("Select Supplier", "Save");
@@ -383,7 +324,7 @@ else
                 return;
             }
             IsLoading = true;
-            model.TransactionType = stringTypeSelect ;
+            model.TransactionType = selectedTypeId.Value;
 
             TransactionDto a = new TransactionDto()
                 {

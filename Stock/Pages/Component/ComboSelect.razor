@@ -1,37 +1,68 @@
 ﻿
+
+
 <FluentCombobox Items="@Items"
                 OptionText="@(i => i.Text)"
                 OptionValue="@(i => i.Value)"
 @bind-SelectedOption="@SelectedOption"
 @bind-Value="@SelectedValue" />
 
+
+
 @code {
     [Parameter]
     public List<Option<string>> Items { get; set; }
-    
-    [Parameter] public string? InitialSelectedValue { get; set; } = "(Select Value)";
+
+
     [Parameter] public EventCallback<Option<string>> OnSelectedOptionChanged { get; set; }
     [Parameter] public EventCallback<string> OnSelectedValueChanged { get; set; }
 
-    private Option<string> SelectedOption { get; set; } = default!;
-    private string? SelectedValue { get; set; } = "(Select Value)";
- 
-  
-    private async Task OnSelectedOptionChangedHandler(Option<string> value)
+    private string? SelectedValueSelect = string.Empty;
+    private Option<string> SelectedOptionSelect = default!;
+
+    string? SelectedValue
     {
-        SelectedOption = value;
-        await OnSelectedOptionChanged.InvokeAsync(value);
+        get
+        {
+            return SelectedValueSelect;
+        }
+        set
+        {
+            SetSelectedValueAsync(value);
+
+        }
+    }
+    private async Task SetSelectedValueAsync(string value)
+    {
+        SelectedValueSelect = value;
+        await OnSelectedValueChanged.InvokeAsync(value);
     }
 
-    private async Task OnSelectedValueChangedHandler(string value)
+    Option<string> SelectedOption
     {
-        SelectedValue = value;
-        await OnSelectedValueChanged.InvokeAsync(value);
+        get
+        {
+            return SelectedOptionSelect;
+        }
+        set
+        {
+            SetSelectedOptionAsync(value);
+
+        }
+    }
+    private async Task SetSelectedOptionAsync(Option<string> value)
+    {
+        SelectedOptionSelect = value;
+        await OnSelectedOptionChanged.InvokeAsync(value);
     }
 
     protected override void OnInitialized()
     {
-       // SelectedValue = InitialSelectedValue;
+        base.OnInitialized();
+     
+
     }
+
+
 }
 

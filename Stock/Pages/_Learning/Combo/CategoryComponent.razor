@@ -15,16 +15,23 @@
     <FluentGrid>
         <FluentGridItem xs="6">
 
-          
-
                 <Stock.Pages.Component.ComboSelect Items="@stringOptionsCat"
-                                                   OnSelectedOptionChanged="HandleSelectedOptionChanged"
-                                                   OnSelectedValueChanged="HandleSelectedValueChanged" />
+           
+                          OnSelectedOptionChanged="HandleSelectedOptionChanged"
+                          OnSelectedValueChanged="HandleSelectedValueChanged"
+               />
 
 
         </FluentGridItem>
     </FluentGrid>
 </div>
+
+<br/>
+<p>
+        Category = @message;
+       
+</p>  
+
 
 }
 
@@ -34,10 +41,10 @@
 
 
     List<Option<string>> stringOptionsCat = new();
-    string? stringCategory = "(Select Category)";
+    string? stringCategory = "(Select Value)";
     Option<string> selectedCategoryId = default!;
 
-
+    string message = string.Empty;
 
     IQueryable<CategoryDto>? cats;
 
@@ -56,25 +63,30 @@
         try
         {
             selectedCategoryId = value;
+            message = selectedCategoryId.Value;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             string msg = ex.Message;
             return;
         }
-    
+
     }
 
     private void HandleSelectedValueChanged(string value)
     {
         // Handle the selected value changed event
         // You can perform any additional logic here
-     
+
 
 
         try
         {
             stringCategory = value;
+            message = stringCategory;
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -98,7 +110,7 @@
             stringOptionsCat.Add(new Option<string>
                 {
                     Value = "0",
-                    Text = "(Select Category)",
+                    Text = "(Select Value)",
                     Selected = true // You can set this based on your logic
                 });
 
