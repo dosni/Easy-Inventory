@@ -1,0 +1,94 @@
+﻿@page "/radioselect"
+
+
+
+
+<Stock.Component.RadioGroup Name="numbers" Label="Numbers" @bind-Value=value1 options="numberOptions" OnChecked="HandleValueChecked" />
+
+
+@message
+
+@code
+{
+    string? value1;
+    string? message;  // List<RadioOption> numberOptions;
+    public List<Option<string>> numberOptions { get; set; }
+  
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Set the values for the radio group dynamically
+        numberOptions = new List<Option<string>>
+        {
+            new Option<string> { Value = "1", Text= "One",Selected=true },
+            new Option<string> { Value = "2", Text = "Two" }
+            // Add more options as needed
+        };
+    }
+    private void HandleValueChecked(string value)
+    {
+        message = value;
+    }
+
+  
+}
+
+
+@* 
+<div>
+    <FluentRadioGroup Name="numbers" @bind-Value=value1 Label="Numbers">
+        @foreach (var number in numberOptions)
+        {
+            <FluentRadio Value=@number.Value>@number.Label</FluentRadio>
+        }
+    </FluentRadioGroup>
+</div>
+
+@code
+{
+    string? value1;
+
+    List<RadioOption> numberOptions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Set the values for the radio group dynamically
+        numberOptions = new List<RadioOption>
+        {
+            new RadioOption { Value = "one", Label = "One" },
+            new RadioOption { Value = "two", Label = "Two" },
+            // Add more options as needed
+        };
+
+        // Set the initial value for the radio group
+        value1 = numberOptions.First().Value;
+    }
+
+    public class RadioOption
+    {
+        public string Value { get; set; }
+        public string Label { get; set; }
+    }
+} 
+
+ *@
+
+@* <div>
+    <FluentRadioGroup Name="numbers" @bind-Value=value1 Label="Numbers">
+        <FluentRadio Value=@("one")>One</FluentRadio>
+        <FluentRadio Value=@("two")>Two</FluentRadio>
+    </FluentRadioGroup>
+</div>
+
+
+
+@code
+{
+    string? value1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+} *@

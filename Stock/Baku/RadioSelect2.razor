@@ -1,0 +1,29 @@
+﻿@* 
+<div>
+    <FluentRadioGroup Name="@Name" @bind-Value=Value Label="@Label">
+        @foreach (var option in Items)
+        {
+            <FluentRadio Value="@option.Value">@option.Text</FluentRadio>
+        }
+    </FluentRadioGroup>
+</div>
+
+@code {
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Label { get; set; }
+    [Parameter] public string Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    
+    [Parameter] 
+    public List<Option<string>> Items { get; set; }
+    
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Set the initial value for the radio group
+        Value = Items.First().Value;
+    }
+
+  
+} *@

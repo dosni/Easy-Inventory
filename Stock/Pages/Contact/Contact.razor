@@ -18,7 +18,7 @@
 }
 @if (contacts != null)
 {
-      <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
+      <Stock.Component.NameFilter OnFilter="FilterNames" />
 
     <FluentDataGrid Items="@contacts" ResizableColumns=true GridTemplateColumns="0.2fr 0.2fr 0.6fr 0.3fr 0.3fr"
                     style="height: 580px;overflow:auto;">

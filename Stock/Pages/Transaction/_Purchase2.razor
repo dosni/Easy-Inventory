@@ -92,7 +92,7 @@
 else
 {
     <FluentIcon Value="@(new Icons.Regular.Size16.ArrowLeft())" Color="Color.Neutral" Slot="start" OnClick="@(() => Show(false))" />
-    <Stock.Pages.Component.NameFilter OnFilter="FilterNames" />
+    <Stock.Component.NameFilter OnFilter="FilterNames" />
     <FluentDataGrid Items="@productDisplays" ResizableColumns=true GridTemplateColumns="0.4fr 0.4fr 0.2fr 0.2fr 0.3fr"
                     style="height: 580px;overflow:auto;">
 
