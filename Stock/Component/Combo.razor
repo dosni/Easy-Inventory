@@ -56,11 +56,24 @@
         await OnSelectedOptionChanged.InvokeAsync(value);
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-     
+   
 
+        try
+        {
+            base.OnInitialized();
+            SelectedOptionSelect = Items.First();
+
+            await OnSelectedOptionChanged.InvokeAsync(SelectedOptionSelect);
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return;
+        }
+
+     
     }
 
 

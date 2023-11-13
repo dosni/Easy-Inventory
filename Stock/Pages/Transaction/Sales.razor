@@ -5,7 +5,9 @@
 <PageTitle>Sales</PageTitle>
 
 
-
+<FluentHeader Style="background-color:none">
+    <h3>Sales</h3>
+</FluentHeader>
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
@@ -16,8 +18,8 @@
 {
 
     <div style="padding: 1.5rem;">
-        <FluentLabel Typo="Typography.Header"> Sales </FluentLabel>
-        <br />
+        @*  <FluentLabel Typo="Typography.Header"> Sales </FluentLabel>
+    <br /> *@
 
         <EditForm Model="@model">
             <DataAnnotationsValidator />
@@ -25,16 +27,16 @@
             <FluentStack Orientation="Orientation.Vertical">
                 <FluentGrid Spacing="0">
                     <FluentGridItem xs="12">
-                        <FluentGrid>
-                            <FluentGridItem xs="6">
-                                <FluentCombobox Items=@stringOptionsType
-                                                OptionText="@(i => i.Text)"
-                                                OptionValue="@(i => i.Value)"
-                                                OptionSelected="@(i => i.Selected)"
-                                @bind-SelectedOption="@selectedTypeId"
-                                @bind-Value="@stringType" />
-                            </FluentGridItem>
-                        </FluentGrid>
+                        @*   <FluentGrid>
+                    <FluentGridItem xs="6">
+                    <FluentCombobox Items=@stringOptionsType
+                    OptionText="@(i => i.Text)"
+                    OptionValue="@(i => i.Value)"
+                    OptionSelected="@(i => i.Selected)"
+                    @bind-SelectedOption="@selectedTypeId"
+                    @bind-Value="@stringType" />
+                    </FluentGridItem>
+                    </FluentGrid> *@
                         <FluentGrid>
                             <FluentGridItem xs="6">
                                 <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
@@ -43,12 +45,15 @@
 
                         <FluentGrid>
                             <FluentGridItem xs="6">
-                                <FluentCombobox Items=@stringOptionsCustomer
-                                                OptionText="@(i => i.Text)"
-                                                OptionValue="@(i => i.Value)"
-                                                OptionSelected="@(i => i.Selected)"
-                                @bind-SelectedOption="@selectedCustomerId"
-                                @bind-Value="@stringCustomer" />
+                                <Stock.Component.Combo Items="@stringOptionsCustomer"
+                                                       OnSelectedOptionChanged="HandleOptionChanged"
+                                                       OnSelectedValueChanged="HandleValueChanged" />
+                                @*   <FluentCombobox Items=@stringOptionsCustomer
+                            OptionText="@(i => i.Text)"
+                            OptionValue="@(i => i.Value)"
+                            OptionSelected="@(i => i.Selected)"
+                            @bind-SelectedOption="@selectedCustomerId"
+                            @bind-Value="@stringCustomer" /> *@
                             </FluentGridItem>
                         </FluentGrid>
                         <FluentGrid>
@@ -102,7 +107,7 @@ else
         <PropertyColumn Property="@(c => c.StoreId)" Title="StoreId" Align="Align.Start" Sortable="true" />
         <PropertyColumn Property="@(c => c.QtyAvaiable)" Title="Stock" Align="Align.Start" />
         <TemplateColumn Title="Qty">
-            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1" ></FluentNumberField>
+            <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Qty Placeholder="Qty" Min="1"></FluentNumberField>
         </TemplateColumn>
         <TemplateColumn Title="Price">
             <FluentNumberField Appearance="FluentInputAppearance.Filled" style="width: 100%;" @bind-Value=context.Price Placeholder="Price" Min="0"></FluentNumberField>
@@ -137,38 +142,53 @@ else
     List<Option<string>> stringOptionsCustomer = new();
     string? stringCustomer = "(Select Customer)";
     Option<string> selectedCustomerId = default!;
+    string stringTransactionType = ((int)TransactionType.Purchase).ToString();
+    // List<Option<string>> stringOptionsType = new();
 
-    List<Option<string>> stringOptionsType = new();
-
-    Option<string> selectedTypeId = default!;
-    string? stringTypeSelect = "Sale";
+    // Option<string> selectedTypeId = default!;
+    // string? stringTypeSelect = "Sale";
 
     private void FilterNames(string filter)
     {
         productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
         StateHasChanged();
     }
-
-    string? stringType
+    private void HandleOptionChanged(Option<string> value)
     {
-        get
+        // Handle the selected option changed event
+        // You can perform any additional logic here
+        try
         {
-            return stringTypeSelect;
-        }
-        set
-        {
-            stringTypeSelect = value;
+            selectedCustomerId = value;
 
-            if (stringTypeSelect == "Sales")
-            {
-                model.Description = "Sales Product";
-            }
-            else
-            {
-                model.Description = "Sales Return Product";
-            }
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return;
+        }
+
+    }
+
+    private void HandleValueChanged(string value)
+    {
+        // Handle the selected value changed event
+        // You can perform any additional logic here
+
+
+
+        try
+        {
+            stringCustomer = value;
+
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return;
         }
     }
+   
     protected override async Task OnInitializedAsync()
     {
         try
@@ -184,19 +204,7 @@ else
             productDisplays = productInits;
             contacts = (await _contactServices.GetCustomerListAsycn()).AsQueryable();
 
-            stringOptionsType = new()
-                {
-                    { new Option<string> { Value = "30", Text = "Sales", Selected = true} },
-                    { new Option<string> { Value = "35", Text = "Sales Return", Selected = false} }
-                 };
-
-            stringOptionsCustomer.Add(new Option<string>
-                {
-                    Value = "0",
-                    Text = "(Select Customer)",
-                    Selected = true // You can set this based on your logic
-                });
-
+     
             foreach (var item in contacts)
             {
                 stringOptionsCustomer.Add(new Option<string>
@@ -219,7 +227,7 @@ else
     {
         model = new TransactionDto();
 
-        model.TransactionType = ((int)TransactionType.Sales).ToString(); 
+        model.TransactionType = ((int)TransactionType.Sales).ToString();
         model.TransactionDate = DateTime.Today;
         model.Description = "Sales Product";
         model.CreatedBy = "Admin";
@@ -275,16 +283,12 @@ else
 
             }
             // cek untuk penjualan apakah jumlah melebih stock. Untuk pengembalian penjualan tidak perlu di cek
-            if (selectedTypeId.Value == ((int)TransactionType.Sales).ToString())
+
+            if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
             {
-                if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
-                {
-                    _dialogService.ShowInfo("Qty is not available", "Qty Available");
-                    return;
-                }
-
+                _dialogService.ShowInfo("Qty is not available", "Qty Available");
+                return;
             }
-
 
 
             // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
@@ -296,7 +300,7 @@ else
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
                     StoreId = LocationId,
-                    TransactionType = selectedTypeId.Value,
+                    TransactionType = model.TransactionType,
                     Qty = selectedProduct.Qty,
                     Price = selectedProduct.Price
 
@@ -321,7 +325,7 @@ else
         try
         {
 
-            if (stringCustomer == "(Select Customer)")
+            if (stringCustomer == null)
             {
                 _dialogService.ShowInfo("Select Customer", "Save");
                 return;
@@ -333,7 +337,7 @@ else
             }
 
             IsLoading = true;
-            model.TransactionType = selectedTypeId.Value;
+     
             TransactionDto a = new TransactionDto()
                 {
                     TransactionDate = model.TransactionDate,

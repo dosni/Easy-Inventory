@@ -4,6 +4,9 @@
 <PageTitle>Purchase</PageTitle>
 
 
+<FluentHeader Style="background-color:none">
+    <h3>Purchases</h3>
+</FluentHeader>
 
 @if (IsLoading == true)
 {
@@ -15,8 +18,8 @@
 {
 
     <div style="padding: 1.5rem;">
-        <FluentLabel Typo="Typography.Header"> Purchases </FluentLabel>
-        <br />
+       @*  <FluentLabel Typo="Typography.Header"> Purchases </FluentLabel>
+        <br /> *@
 
         <EditForm Model="@model">
             <DataAnnotationsValidator />
@@ -24,19 +27,7 @@
             <FluentStack Orientation="Orientation.Vertical">
                 <FluentGrid Spacing="0">
                     <FluentGridItem xs="12">
-                        <FluentGrid>
-                            <FluentGridItem xs="6">
-                               @*  <Stock.Pages.Component.Combo Items="@stringOptionsType"
-                                                                   OnSelectedOptionChanged="HandleSelectedTypeOptionChanged"
-                                                                   OnSelectedValueChanged="HandleSelectedTypeValueChanged" /> *@
-                                <div>
-                                    <FluentRadioGroup Name="Transaction" @bind-Value=stringType Label="Transaction">
-                                        <FluentRadio Value=@("20")>Purchase</FluentRadio>
-                                        <FluentRadio Value=@("25")>Purchase Return</FluentRadio>
-                                    </FluentRadioGroup>
-                                </div>
-                            </FluentGridItem>
-                        </FluentGrid>
+                      
                         <FluentGrid>
                             <FluentGridItem xs="6">
                                 <FluentDatePicker @bind-Value="@model.TransactionDate" Label="Trasaction Date " />
@@ -45,12 +36,9 @@
 
                         <FluentGrid>
                             <FluentGridItem xs="6">
-                                <FluentCombobox Items=@stringOptionsSupplier
-                                                OptionText="@(i => i.Text)"
-                                                OptionValue="@(i => i.Value)"
-                                                OptionSelected="@(i => i.Selected)"
-                                @bind-SelectedOption="@selectedSupplierId"
-                                @bind-Value="@stringSupplier" />
+                                <Stock.Component.Combo Items="@stringOptionsSupplier"
+                                                       OnSelectedOptionChanged="HandleOptionChanged"
+                                                       OnSelectedValueChanged="HandleValueChanged" />
                             </FluentGridItem>
                         </FluentGrid>
                         <FluentGrid>
@@ -129,12 +117,14 @@ else
     IQueryable<ContactDto>? contacts;
 
     List<Option<string>> stringOptionsSupplier = new();
-    string? stringSupplier = "(Select Supplier)";
+    string? stringSupplier;//= "(Select a Value)";
+
     Option<string> selectedSupplierId = default!;
 
-    // List<Option<string>> stringOptionsType = new();
-    // Option<string> selectedTypeId = default!;
-    string stringTypeSelect = ((int)TransactionType.Purchase).ToString();
+    
+
+  
+
 
     JustifyContent Justification = JustifyContent.FlexStart;
     private void FilterNames(string filter)
@@ -142,67 +132,40 @@ else
         productDisplays = productInits.Where(p => p.ProductName.ToLower().Contains(filter.ToLower()));
         StateHasChanged();
     }
-    // private void HandleSelectedTypeOptionChanged(Option<string> value)
-    // {
-    //     // Handle the selected option changed event
-    //     // You can perform any additional logic here
-    //     try
-    //     {
-    //         selectedTypeId = value;
 
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         string msg = ex.Message;
-    //         return;
-    //     }
-
-    // }
-
-    // private void HandleSelectedTypeValueChanged(string value)
-    // {
-    //     // Handle the selected value changed event
-    //     // You can perform any additional logic here
-
-
-
-    //     try
-    //     {
-    //         stringTypeSelect = value;
-    //         if (stringTypeSelect == "Purchases")
-    //         {
-    //             model.Description = "Purchases Product";
-    //         }
-    //         else
-    //         {
-    //             model.Description = "Purchases Return Product";
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         string msg = ex.Message;
-    //         return;
-    //     }
-    // }
-
-    string stringType
+    private void HandleOptionChanged(Option<string> value)
     {
-        get
+        // Handle the selected option changed event
+        // You can perform any additional logic here
+        try
         {
-            return stringTypeSelect;
+            selectedSupplierId = value;
+  
         }
-        set
+        catch (Exception ex)
         {
-            stringTypeSelect = value;
+            string msg = ex.Message;
+            return;
+        }
 
-            if (stringTypeSelect == ((int)TransactionType.Purchase).ToString())
-            {
-                model.Description = "Purchases Product";
-            }
-            else
-            {
-                model.Description = "Purchases Return Product";
-            }
+    }
+
+    private void HandleValueChanged(string value)
+    {
+        // Handle the selected value changed event
+        // You can perform any additional logic here
+
+
+
+        try
+        {
+            stringSupplier = value;
+    
+        }
+        catch (Exception ex)
+        {
+            string msg = ex.Message;
+            return;
         }
     }
 
@@ -217,26 +180,13 @@ else
             var loc = _userContext.GetLocationId();
             LocationId = loc.Result;
 
-
+    
             productInits = (await _productDisplay.GetProducPurchasetSelectionAsycn()).AsQueryable();
             productDisplays = productInits;
 
             contacts = (await _contactServices.GetSupplierListAsycn()).AsQueryable();
 
-            // stringOptionsType = new()
-            //     {
 
-            //          { new Option<string> { Value = "20", Text = "Purchases", Selected = true} },
-            //          { new Option<string> { Value = "25", Text = "Purchases Return", Selected = false} }
-            //      };
-
-
-            stringOptionsSupplier.Add(new Option<string>
-                {
-                    Value = "0",
-                    Text = "(Select a Value)",
-                    Selected = true // You can set this based on your logic
-                });
             foreach (var item in contacts)
             {
                 stringOptionsSupplier.Add(new Option<string>
@@ -297,11 +247,7 @@ else
     private async void Add(int Id)
     {
 
-        // if (selectedTypeId == null)
-        // {
-        //     _dialogService.ShowInfo("Select Transaction Type", "Qty Available");
-        //     return;
-        // }
+     
 
         // Find the product with the specified Id in the productDisplays collection
         var selectedProduct = productDisplays.FirstOrDefault(p => p.SkuId == Id);
@@ -323,16 +269,7 @@ else
 
             }
 
-            // cek untuk penjualan apakah jumlah melebih stock. Untuk pengembalian penjualan tidak perlu di cek
-            if (stringTypeSelect == ((int)TransactionType.Purchase_Return).ToString())
-            {
-                if (selectedProduct.Qty > selectedProduct.QtyAvaiable || selectedProduct.QtyAvaiable == null)
-                {
-                    _dialogService.ShowInfo("Qty is not available", "Qty Available");
-                    return;
-                }
-
-            }
+    
 
             // storeId = 1 default.  Seharusnya pada saat login dicari userId itu StoreId nya yang mana ?
 
@@ -343,7 +280,7 @@ else
                     SKU = selectedProduct.SKU,
                     SkuId = selectedProduct.SkuId,
                     StoreId = LocationId,
-                    TransactionType = stringTypeSelect,
+                    TransactionType = model.TransactionType,
                     Qty = selectedProduct.Qty,
                     Price = selectedProduct.Price
 
@@ -367,12 +304,8 @@ else
 
         try
         {
-            // if (stringTypeSelect ==string.Empty)
-            // {
-            //     _dialogService.ShowInfo("Select Transaction Type", "Save");
-            //     return;
-            // }
-            if (stringSupplier == "(Select Supplier)")
+    
+            if (stringSupplier ==null)
             {
                 _dialogService.ShowInfo("Select Supplier", "Save");
                 return;
@@ -383,7 +316,7 @@ else
                 return;
             }
             IsLoading = true;
-            model.TransactionType = stringTypeSelect ;
+          
 
             TransactionDto a = new TransactionDto()
                 {

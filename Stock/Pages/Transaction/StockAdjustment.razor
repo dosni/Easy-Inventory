@@ -2,7 +2,9 @@
 
 
 <PageTitle>StockAdjustment</PageTitle>
-
+<FluentHeader Style="background-color:none">
+    <h3>Stock Adjusment</h3>
+</FluentHeader>
 @if (IsLoading == true)
 {
     <div style="width: 300px; display: grid; grid-gap: 12px; grid-auto-flow: column;">
@@ -12,8 +14,7 @@
 @if (productDisplays != null)
 {
     <div style="padding: 1.5rem;">
-        <FluentLabel Typo="Typography.Header"> Stock Adjustment </FluentLabel>
-        <br />
+       
         <EditForm Model="@model">
             <DataAnnotationsValidator />
             <FluentValidationSummary />

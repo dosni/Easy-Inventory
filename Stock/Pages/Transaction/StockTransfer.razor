@@ -4,7 +4,9 @@
 
 <PageTitle>StockTransfer</PageTitle>
 
-
+<FluentHeader Style="background-color:none">
+    <h3>Stock Transfer</h3>
+</FluentHeader>
 
 @if (IsLoading == true)
 {
@@ -15,8 +17,7 @@
 @if (productDisplays != null)
 {
     <div style="padding: 1.5rem;">
-        <FluentLabel Typo="Typography.Header"> Stock Transfer </FluentLabel>
-        <br />
+     
         <EditForm Model="@model">
             <DataAnnotationsValidator />
             <FluentValidationSummary />

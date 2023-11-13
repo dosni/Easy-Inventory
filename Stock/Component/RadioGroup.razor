@@ -14,9 +14,14 @@
     [Parameter] public EventCallback<string> OnChecked { get; set; }
   
     [Parameter] public string Label { get; set; }
-    [Parameter] public string Value { get; set; }
+   
     [Parameter]
     public List<Option<string>> options { get; set; }
+
+    // Value and valueChanged are required. I dont know why ?
+    // Is it default of radio ???
+
+    [Parameter] public string Value { get; set; }
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
 
     private string? SelectedValue = string.Empty;
